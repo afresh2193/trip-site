@@ -1,0 +1,70 @@
+name: Generate Cloudinary JSON
+
+on:
+  workflow_dispatch:  # allows manual run from GitHub UI
+  push:
+    branches:
+      - main        # optionally run on push to main branch
+
+jobs:
+  generate-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install cloudinary fs path
+
+      - name: Generate JSON files
+        env:
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: |
+          node <<'EOF'
+          const cloudinary = require("cloudinary").v2;
+          const fs = require("fs");
+          const path = require("path");
+
+          cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+          });
+
+          const trips = ["romero-canyon","another-trip"]; // list all your trip folders here
+          const outputDir = path.join(__dirname, "data");
+          if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+
+          (async () => {
+            for (const trip of trips) {
+              try {
+                const result = await cloudinary.api.resources({
+                  type: "upload",
+                  prefix: `hikes/${trip}/`,
+                  max_results: 500
+                });
+                const urls = result.resources.map(r => r.secure_url);
+                fs.writeFileSync(path.join(outputDir, `${trip}.json`), JSON.stringify(urls, null, 2));
+                console.log(`✅ JSON created for ${trip}`);
+              } catch (err) {
+                console.error(`❌ Error for ${trip}:`, err.message);
+              }
+            }
+          })();
+          EOF
+
+      - name: Commit JSON files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/*.json
+          git commit -m "Auto-generate trip JSON files [skip ci]" || echo "No changes"
+          git push
