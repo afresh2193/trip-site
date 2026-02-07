@@ -9,18 +9,10 @@
 
   /* Header banner */
   .header {
-    background: #333;
-    color: white;
-    text-align: center;
-    padding: 20px;
+    background: #333; color: white; text-align: center; padding: 20px;
   }
   .header h1 { margin: 0; font-size: 32px; }
   .header p { margin: 5px 0 0; font-size: 16px; }
-
-  /* Map and container */
-  #container { display: flex; flex-wrap: wrap; min-height: 500px; height: 80vh; }
-  #map-container { flex: 0 0 80%; position: relative; padding: 10px; }
-  #map { width: 100%; height: 100%; }
 
   /* Filters dropdown */
   #filters {
@@ -33,19 +25,29 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
 
-  /* Sidebar for trip details */
+  /* Map */
+  #map {
+    width: 100%;
+    height: calc(80vh - 20px);
+    min-height: 500px;
+  }
+
+  /* Sidebar */
   #details-panel {
-    flex: 1;
+    position: absolute;
+    right: 10px;
+    top: 100px;
+    width: 300px;
+    max-height: 70vh;
+    overflow-y: auto;
     background: #f9f9f9;
     padding: 15px;
-    overflow-y: auto;
-    border-left: 1px solid #ccc;
+    border: 1px solid #ccc;
     display: none;
+    z-index: 1000;
   }
   #details-panel img {
     width: 100%;
-    max-height: 300px;
-    object-fit: cover;
     margin-bottom: 10px;
     border-radius: 0; /* square corners */
   }
@@ -53,7 +55,7 @@
   #details-panel p { margin: 4px 0; font-size: 14px; }
   #details-panel .close-panel {
     background: #444; color: #fff; border: none; padding: 5px 10px;
-    float: right; cursor: pointer; border-radius: 4px; margin-bottom: 10px;
+    cursor: pointer; border-radius: 4px; margin-bottom: 10px;
   }
   #details-panel .go-to-page-btn {
     background-color: #28a745; color: white; padding: 12px 24px;
@@ -62,16 +64,16 @@
   }
   #details-panel .go-to-page-btn:hover { background-color: #218838; }
 
-  /* Below-map content */
+  /* Below-map section */
   .below-map {
     padding: 40px;
     text-align: center;
     background: #ffffff;
   }
 
-  @media (max-width: 900px) {
-    #container { flex-direction: column; }
-    #details-panel { border-left: none; border-top: 1px solid #ccc; flex: none; height: 50vh; }
+  @media(max-width:900px){
+    #details-panel { position: static; width: 95%; margin: 10px auto; max-height: 400px; }
+    #map { height: 50vh; }
   }
 </style>
 </head>
@@ -98,18 +100,16 @@
     </label>
   </div>
 
-  <!-- Map container + Sidebar -->
-  <div id="container">
-    <div id="map-container">
-      <div id="map"></div>
-    </div>
-    <div id="details-panel">
-      <button class="close-panel">Close</button>
-      <div id="details-content"></div>
-    </div>
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- Sidebar -->
+  <div id="details-panel">
+    <button class="close-panel">Close</button>
+    <div id="details-content"></div>
   </div>
 
-  <!-- Below-map section -->
+  <!-- Below-map content -->
   <div class="below-map">
     <h2>Extra Content / Embedded Code Here</h2>
     <p>Add videos, links, or widgets</p>
@@ -118,94 +118,86 @@
   <!-- Google Maps API -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA"></script>
 
-  <!-- Map JS -->
   <script>
-    window.addEventListener("load", function() {
-      const mapDiv = document.getElementById("map");
-      const typeFilter = document.getElementById("typeFilter");
-      const detailsPanel = document.getElementById("details-panel");
-      const detailsContent = document.getElementById("details-content");
-      const closePanelBtn = detailsPanel.querySelector(".close-panel");
+  window.addEventListener("load", function(){
+    const mapDiv = document.getElementById("map");
+    const typeFilter = document.getElementById("typeFilter");
+    const detailsPanel = document.getElementById("details-panel");
+    const detailsContent = document.getElementById("details-content");
+    const closePanelBtn = detailsPanel.querySelector(".close-panel");
 
-      const map = new google.maps.Map(mapDiv, {
-        center: { lat: 36.805098, lng: -109.822512 },
-        zoom: 6,
-        mapTypeId: google.maps.MapTypeId.TERRAIN,
-        disableDefaultUI: true
-      });
-
-      function getMarkerIcon(type) {
-        switch(type.toLowerCase()) {
-          case "hike": return "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-          case "backpack": return "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
-          case "kayak": return "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
-          case "other": return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-        }
-      }
-
-      let allMarkersData = [];
-      let mapMarkers = [];
-
-      // Fetch trip data from Apps Script
-      fetch("https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec")
-        .then(res => res.json())
-        .then(data => {
-          allMarkersData = data.cardItems;
-          updateMarkers();
-        })
-        .catch(err => console.error("Markers load failed", err));
-
-      function updateMarkers() {
-        mapMarkers.forEach(m => m.setMap(null));
-        mapMarkers = [];
-
-        const bounds = map.getBounds();
-        if (!bounds) return;
-
-        const selectedType = typeFilter.value;
-
-        allMarkersData.forEach(d => {
-          if(selectedType !== "All" && d.type !== selectedType) return;
-          const position = new google.maps.LatLng(d.position.lat, d.position.lng);
-          if(bounds && bounds.contains(position)) {
-            const marker = new google.maps.Marker({
-              position,
-              map,
-              icon: getMarkerIcon(d.type)
-            });
-            marker.addListener("click", () => showDetails(d));
-            mapMarkers.push(marker);
-          }
-        });
-      }
-
-      map.addListener("bounds_changed", updateMarkers);
-      typeFilter.addEventListener("change", updateMarkers);
-
-      function showDetails(data) {
-        detailsContent.innerHTML = `
-          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="${data.title}">` : ""}
-          <h2>${data.title}</h2>
-          <p><strong>Area:</strong> ${data.area}</p>
-          <p><strong>Date:</strong> ${data.date}</p>
-          <p><strong>Miles:</strong> ${data.miles}</p>
-          <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
-          <p><strong>Overall Ranking:</strong> ${data.overallRanking}</p>
-          <button class="go-to-page-btn">Go to Page</button>
-        `;
-        detailsPanel.style.display = "block";
-
-        const goToPageBtn = detailsPanel.querySelector(".go-to-page-btn");
-        goToPageBtn.addEventListener("click", () => {
-          const slug = data.title.toLowerCase().replace(/\s+/g,'-');
-          window.location.href = `trip-gallery.html?slug=${slug}`;
-        });
-      }
-
-      closePanelBtn.addEventListener("click", () => {
-        detailsPanel.style.display = "none";
-      });
+    const map = new google.maps.Map(mapDiv, {
+      center: {lat:36.805098, lng:-109.822512},
+      zoom: 6,
+      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      disableDefaultUI: true
     });
+
+    function getMarkerIcon(type){
+      switch(type.toLowerCase()){
+        case "hike": return "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+        case "backpack": return "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        case "kayak": return "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+        case "other": return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+      }
+    }
+
+    let allMarkersData = [];
+    let mapMarkers = [];
+
+    // Fetch data from your Google Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec")
+      .then(res=>res.json())
+      .then(data=>{
+        allMarkersData = data.cardItems;
+        updateMarkers();
+      }).catch(err=>console.error("Markers load failed", err));
+
+    function updateMarkers(){
+      mapMarkers.forEach(m=>m.setMap(null));
+      mapMarkers=[];
+      const bounds = map.getBounds();
+      const selectedType = typeFilter.value;
+
+      allMarkersData.forEach(d=>{
+        if(selectedType!=="All" && d.type!==selectedType) return;
+        const position = new google.maps.LatLng(d.position.lat,d.position.lng);
+        const marker = new google.maps.Marker({position,map,icon:getMarkerIcon(d.type)});
+        marker.addListener("click",()=>showDetails(d));
+        mapMarkers.push(marker);
+      });
+    }
+
+    map.addListener("bounds_changed",updateMarkers);
+    typeFilter.addEventListener("change",updateMarkers);
+
+    function showDetails(data){
+      // Split comma-separated URLs into multiple images
+      const urls = data.imageUrl ? data.imageUrl.split(",") : [];
+      let imagesHtml = urls.map(u=>`<img src="${u.trim()}" alt="${data.title}">`).join("");
+
+      detailsContent.innerHTML = `
+        <h2>${data.title}</h2>
+        ${imagesHtml}
+        <p><strong>Area:</strong> ${data.area}</p>
+        <p><strong>Date:</strong> ${data.date}</p>
+        <p><strong>Miles:</strong> ${data.miles}</p>
+        <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
+        <p><strong>Overall Ranking:</strong> ${data.overallRanking}</p>
+        <button class="go-to-page-btn">Go to Page</button>
+      `;
+      detailsPanel.style.display="block";
+
+      const goToPageBtn = detailsPanel.querySelector(".go-to-page-btn");
+      goToPageBtn.addEventListener("click",()=>{
+        const slug = data.title.toLowerCase().replace(/\s+/g,'-');
+        window.location.href = `trip-gallery.html?slug=${slug}`;
+      });
+    }
+
+    closePanelBtn.addEventListener("click",()=>{ detailsPanel.style.display="none"; });
+
+  });
   </script>
 
 </body>
