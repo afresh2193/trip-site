@@ -22,7 +22,7 @@ h1 {
     align-items: center;
 }
 #gallery img {
-    width: 90%; /* larger images */
+    width: 90%; /* large images */
     max-width: 800px;
     border-radius: 8px;
     object-fit: cover;
@@ -49,7 +49,7 @@ h1 {
 <button id="back-btn" onclick="history.back()">← Back to Map</button>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_C3GuC5EPVg4W5OEureEkHBgl77rWU-BKHPIMtFL5HdphaTZn2L_XFzMP3L6YKCsi/exec"; // Replace with your Apps Script URL
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; // replace with your deployed Apps Script URL
 
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
