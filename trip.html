@@ -43,7 +43,7 @@ const slug = params.get("slug"); // e.g., "romero-canyon"
 document.getElementById("title").textContent = slug.replaceAll("-", " ");
 
 // Cloudinary tag URL
-const cloudName = "YOUR_CLOUD_NAME";
+const cloudName = "dudbxqaxs";
 const tag = slug; // we use the same slug as tag
 const gallery = document.getElementById("gallery");
 gallery.innerHTML = "Loading...";
@@ -78,6 +78,7 @@ fetch(`https://res.cloudinary.com/${cloudName}/image/list/${tag}.json`)
 
 </body>
 </html>
+
 
 
 
