@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trip Gallery</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-h1 { text-align: center; margin-bottom: 20px; text-transform: capitalize; }
-#gallery { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-#gallery img { width: 100%; max-width: 300px; border-radius: 6px; object-fit: cover; }
-#back-btn { display: block; margin: 30px auto; padding: 12px 24px; font-size: 16px; border-radius: 6px; border: none; background: #444; color: #fff; cursor: pointer; transition: 0.3s; }
-#back-btn:hover { background: #222; }
+body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5;}
+h1{text-align:center;margin-bottom:20px;text-transform:capitalize;}
+#gallery{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+#gallery img{width:100%;max-width:300px;border-radius:6px;object-fit:cover;}
+#back-btn{display:block;margin:30px auto;padding:12px 24px;font-size:16px;border-radius:6px;border:none;background:#444;color:#fff;cursor:pointer;transition:0.3s;}
+#back-btn:hover{background:#222;}
 </style>
 </head>
 <body>
@@ -20,37 +20,30 @@ h1 { text-align: center; margin-bottom: 20px; text-transform: capitalize; }
 <button id="back-btn" onclick="history.back()">← Back to Map</button>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxY27pM_XCbg-X3G3SOpJkCOBLAAlHgr0Kcuclud00TNABAJfx-Nr5JDVZsAW0py8vk/exec"; // replace with your Apps Script URL
-
-const params = new URLSearchParams(window.location.search);
-const slug = params.get("slug");
-
-const gallery = document.getElementById("gallery");
-const titleElem = document.getElementById("trip-title");
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxwMmz0fceVtuMSQLHV2b2FMwHP37RbOTk7jgd3rKS_LzdPziAF_Y50hbos3tjFfV39/exec";
+const params=new URLSearchParams(window.location.search);
+const slug=params.get("slug");
+const gallery=document.getElementById("gallery");
+const titleElem=document.getElementById("trip-title");
 
 fetch(APPS_SCRIPT_URL)
-  .then(res => res.json())
-  .then(data => {
-    const urls = data.images[slug] || [];
-    titleElem.textContent = slug.replace(/-/g, ' ');
-
-    if (!urls.length) {
-      gallery.innerHTML = "<p>No photos for this trip.</p>";
-      return;
-    }
-
-    gallery.innerHTML = "";
-    urls.forEach(url => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = slug;
-      gallery.appendChild(img);
+.then(res=>res.json())
+.then(data=>{
+    const urls=data.images[slug]||[];
+    titleElem.textContent=slug.replace(/-/g,' ');
+    if(!urls.length){ gallery.innerHTML="<p>No photos for this trip.</p>"; return; }
+    gallery.innerHTML="";
+    urls.forEach(url=>{
+        const img=document.createElement("img");
+        img.src=url;
+        img.alt=slug;
+        gallery.appendChild(img);
     });
-  })
-  .catch(err => {
+})
+.catch(err=>{
     console.error(err);
-    gallery.innerHTML = "<p>Failed to load photos.</p>";
-  });
+    gallery.innerHTML="<p>Failed to load photos.</p>";
+});
 </script>
 
 </body>
