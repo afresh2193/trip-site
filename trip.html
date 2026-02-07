@@ -39,13 +39,14 @@
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
+// Set page title
 document.getElementById("title").textContent = slug.replaceAll("-", " ");
 
 // Cloudinary folder path
 const folder = `trips/${slug}`;
 
-// Load images dynamically
-fetch(`https://res.cloudinary.com/YOUR_CLOUD_NAME/image/list/${folder}.json`)
+// Fetch images from Cloudinary
+fetch(`https://res.cloudinary.com/dudbxqaxs/image/list/${folder}.json`)
   .then(res => res.json())
   .then(data => {
     const gallery = document.getElementById("gallery");
@@ -61,5 +62,7 @@ fetch(`https://res.cloudinary.com/YOUR_CLOUD_NAME/image/list/${folder}.json`)
   });
 </script>
 
+
 </body>
 </html>
+
