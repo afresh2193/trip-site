@@ -2,51 +2,43 @@
 <html>
 <head>
   <title>Travel Map</title>
-
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-    }
-
-    .header {
-      background: #333;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
-
-    .below-map {
-      padding: 40px;
-      text-align: center;
-      background: #ffffff;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f2f2f2; }
+    .header { background: #333; color: white; text-align: center; padding: 20px; }
+    #map-container { height: 80vh; width: 100%; }
+    .below-map { padding: 40px; background: #fff; text-align: center; }
+    #details-panel { ... your existing sidebar styles ... }
   </style>
 </head>
 
 <body>
 
+  <!-- Header / Banner -->
   <div class="header">
     <h1>My Travel Map</h1>
     <p>Click a location to open the trip gallery</p>
   </div>
 
-  <div id="map"></div>
-
-  <div class="below-map">
-    <h2>More Adventures Coming Soon</h2>
-    <p>Add stats, videos, or blog posts here.</p>
+  <!-- Map -->
+  <div id="map-container">
+    <div id="map"></div>
   </div>
 
-</body>
-</html>
+  <!-- Details sidebar -->
+  <div id="details-panel">
+    <button class="close-panel">Close</button>
+    <div id="details-content"></div>
+  </div>
 
+  <!-- Additional content below map -->
+  <div class="below-map">
+    <h2>Extra Content / Embedded Code Here</h2>
+    <p>Add videos, links, or any embedded widgets</p>
+  </div>
+
+  <!-- Your map JS code -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY"></script>
+  <script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -263,6 +255,11 @@ window.addEventListener("load", function() {
   });
 });
 </script>
+
+</body>
+</html>
+
+  </script>
 
 </body>
 </html>
