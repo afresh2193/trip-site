@@ -20,22 +20,19 @@ h1 { text-align: center; margin-bottom: 20px; }
 <button id="back-btn" onclick="history.back()">← Back to Map</button>
 
 <script>
-// Replace this with your deployed Apps Script Web App URL
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwncwMl-vbwDnRcAZD3JbKHwHfjNYAxiRuugks7_3dEksoq8-pxly0jN89RklkdI6IV/exec";
-
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwncwMl-vbwDnRcAZD3JbKHwHfjNYAxiRuugks7_3dEksoq8-pxly0jN89RklkdI6IV/exec"; // replace with your Apps Script URL
 const params = new URLSearchParams(window.location.search);
-const slug = params.get("slug"); // gets the trip slug from URL
+const slug = params.get("slug");
 const gallery = document.getElementById("gallery");
 const titleElem = document.getElementById("trip-title");
 
 fetch(APPS_SCRIPT_URL)
   .then(res => res.json())
   .then(data => {
-    // Google Sheet must provide a dictionary of images keyed by slug
-    const urls = data.images[slug];
-    titleElem.textContent = slug.replace(/-/g, " "); // convert slug to readable title
+    const urls = data.images[slug] || [];
+    titleElem.textContent = slug.replace(/-/g, ' ');
 
-    if (!urls || urls.length === 0) {
+    if (!urls.length) {
       gallery.innerHTML = "No photos for this trip.";
       return;
     }
@@ -48,7 +45,7 @@ fetch(APPS_SCRIPT_URL)
     });
   })
   .catch(err => {
-    console.error("Failed to load gallery:", err);
+    console.error(err);
     gallery.innerHTML = "Failed to load photos.";
   });
 </script>
