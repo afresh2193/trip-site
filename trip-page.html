@@ -25,13 +25,12 @@ fetch(APPS_SCRIPT_URL)
   .then(res => res.json())
   .then(data => {
     const urls = data.images[slug];
+    titleElem.textContent = slug.replace(/-/g, " ");
+
     if (!urls || urls.length === 0) {
       gallery.innerHTML = "No photos for this trip.";
-      titleElem.textContent = slug.replace(/-/g, " ");
       return;
     }
-
-    titleElem.textContent = slug.replace(/-/g, " ");
 
     gallery.innerHTML = "";
     urls.forEach(url => {
