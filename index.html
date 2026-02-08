@@ -6,51 +6,30 @@
 <title>Travel Map</title>
 <style>
 body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
-
-.header {
-  background: #333; color: white; text-align: center; padding: 20px;
-}
+.header { background:#333; color:white; text-align:center; padding:20px; }
 .header h1 { margin:0; font-size:32px; }
 .header p { margin:5px 0 0; font-size:16px; }
 
 #filters {
-  position: absolute; z-index: 999;
+  position: absolute; z-index:999;
   background:white; padding:10px; margin:10px;
   border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.3);
 }
 
 #container {
-  display: flex;         /* sidebar stays to the right */
-  flex-direction: row;
-  height: 80vh;
-  min-height: 500px;
+  display:flex; flex-direction:row;
+  height:80vh; min-height:500px;
 }
 
-#map-container {
-  flex: 0 0 70%;
-  padding: 10px;
-}
-
-#map {
-  width: 100%;
-  height: 100%;
-}
+#map-container { flex:0 0 70%; padding:10px; }
+#map { width:100%; height:100%; }
 
 #details-panel {
-  flex: 1 0 30%;
-  background:#f9f9f9;
-  padding:15px;
-  overflow-y:auto;
-  border-left:1px solid #ccc;
-  max-height:100%;
+  flex:1 0 30%; background:#f9f9f9;
+  padding:15px; overflow-y:auto; border-left:1px solid #ccc; max-height:100%;
 }
 
-#details-panel img {
-  width: 100%;
-  margin-bottom: 15px;
-  border-radius: 0; /* square corners */
-}
-
+#details-panel img { width:100%; margin-bottom:15px; border-radius:0; }
 #details-panel h2 { margin:5px 0; color:#333; }
 #details-panel p { margin:4px 0; font-size:14px; }
 
@@ -62,13 +41,11 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 }
 #details-panel .go-to-page-btn:hover { background-color:#218838; }
 
-.below-map {
-  padding:40px; text-align:center; background:#ffffff;
-}
+.below-map { padding:40px; text-align:center; background:#fff; }
 
 @media(max-width:900px){
   #container { flex-direction: column; }
-  #map-container { flex: 1 1 100%; }
+  #map-container { flex:1 1 100%; }
   #details-panel { max-height:none; border-left:none; border-top:1px solid #ccc; margin-top:10px; }
 }
 </style>
@@ -107,18 +84,13 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
   <p>Add videos, links, or widgets</p>
 </div>
 
-<script>
-// Load config.json and then Google Maps API
-fetch('config.json')
-  .then(res=>res.json())
-  .then(config=>{
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsKey}`;
-    script.onload = () => initMap(config.scriptUrl);
-    document.head.appendChild(script);
-  });
+<!-- GOOGLE MAPS API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA"></script>
 
-function initMap(scriptUrl){
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; // Put your Google Apps Script URL here
+
+window.addEventListener("load", function() {
   const mapDiv = document.getElementById("map");
   const typeFilter = document.getElementById("typeFilter");
   const detailsContent = document.getElementById("details-content");
@@ -128,7 +100,7 @@ function initMap(scriptUrl){
     zoom:6,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
     disableDefaultUI:true,
-    gestureHandling: "greedy" // scroll zoom without Ctrl
+    gestureHandling:"greedy"
   });
 
   function getMarkerIcon(type){
@@ -143,14 +115,14 @@ function initMap(scriptUrl){
   let allMarkersData = [];
   let mapMarkers = [];
 
-  fetch(scriptUrl)
+  fetch(SCRIPT_URL)
     .then(res=>res.json())
     .then(data=>{
       allMarkersData = data.cardItems;
       updateMarkers();
 
-      // show most recent trip in sidebar on load
-      const sorted = allMarkersData.sort((a,b)=>new Date(b.date) - new Date(a.date));
+      // show most recent trip
+      const sorted = allMarkersData.sort((a,b)=>new Date(b.date)-new Date(a.date));
       if(sorted.length>0) showDetails(sorted[0]);
     })
     .catch(err=>console.error("Markers load failed", err));
@@ -158,7 +130,6 @@ function initMap(scriptUrl){
   function updateMarkers(){
     mapMarkers.forEach(m=>m.setMap(null));
     mapMarkers=[];
-
     const selectedType = typeFilter.value;
 
     allMarkersData.forEach(d=>{
@@ -187,13 +158,13 @@ function initMap(scriptUrl){
       <button class="go-to-page-btn">Go to Page</button>
     `;
 
-    const goToPageBtn = detailsContent.querySelector(".go-to-page-btn");
-    goToPageBtn.addEventListener("click",()=>{
+    const goBtn = detailsContent.querySelector(".go-to-page-btn");
+    goBtn.addEventListener("click",()=>{
       const slug = data.title.toLowerCase().replace(/\s+/g,'-');
       window.location.href = `trip-gallery.html?slug=${slug}`;
     });
   }
-}
+});
 </script>
 
 </body>
