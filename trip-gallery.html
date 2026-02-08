@@ -6,8 +6,8 @@
 <title>Trip Gallery</title>
 <style>
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
+  margin: 0;
   background: #f2f2f2;
 }
 header {
@@ -19,7 +19,6 @@ header h1 {
   font-size: 36px;
   color: #333;
 }
-
 .trip-container {
   display: flex;
   flex-wrap: wrap;
@@ -29,37 +28,17 @@ header h1 {
   max-width: 1200px;
   gap: 20px;
 }
-
 .trip-info, .trip-cover, .trip-map {
   background: #fff;
   padding: 15px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 6px;
 }
-
-.trip-info {
-  flex: 1 1 200px;
-  min-width: 200px;
-}
+.trip-info { flex: 1 1 200px; min-width: 200px; }
 .trip-info p { margin: 5px 0; }
-
-.trip-cover {
-  flex: 1 1 400px;
-  text-align: center;
-}
-.trip-cover img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 0;
-}
-
-.trip-map {
-  flex: 1 1 300px;
-  min-width: 300px;
-  height: 300px;
-}
-
+.trip-cover { flex: 1 1 400px; text-align: center; }
+.trip-cover img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 0; }
+.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; }
 .banner {
   margin: 20px auto;
   max-width: 1200px;
@@ -69,31 +48,23 @@ header h1 {
   color: #fff;
   font-size: 18px;
 }
-
 .photos-container {
   margin: 20px auto;
   max-width: 1200px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  align-items: center;
 }
-
 .photos-container img {
-  width: 90%;
-  max-width: 800px;
+  width: 100%;
+  max-width: 900px;
   border-radius: 0;
   object-fit: cover;
   loading: lazy;
 }
-
 @media (max-width: 900px) {
-  .trip-container {
-    flex-direction: column;
-  }
-  .trip-map, .trip-cover, .trip-info {
-    min-width: 100%;
-  }
+  .trip-container { flex-direction: column; }
+  .trip-map, .trip-cover, .trip-info { min-width: 100%; }
 }
 </style>
 </head>
@@ -141,33 +112,28 @@ function initTripGallery() {
         <p><strong>Type:</strong> ${trip.type}</p>
       `;
 
-      // Cover photo (first image from Imagefolder)
-      if(trip.Imagefolder){
-        const imageUrls = trip.Imagefolder.split(", "); // split on comma + space
-        const firstPhoto = imageUrls[0].trim();
-        document.getElementById("trip-cover").innerHTML = `<img src="${firstPhoto}" alt="${trip.title}" loading="lazy">`;
-
-        // All photos below banner
-        document.getElementById("photos-container").innerHTML = imageUrls.map(u =>
-          `<img src="${u.trim()}" alt="${trip.title}" loading="lazy">`
-        ).join("");
+      // Cover photo (first photo in Imagefolder)
+      const imgUrls = data.images[slug] || [];
+      if(imgUrls.length>0){
+        document.getElementById("trip-cover").innerHTML = `<img src="${imgUrls[0]}" alt="${trip.title}" loading="lazy">`;
       }
 
-      // Small map right column
+      // Map
       if(trip.position){
         const mapDiv = document.getElementById("trip-map");
-        const map = new google.maps.Map(mapDiv, {
+        const map = new google.maps.Map(mapDiv,{
           center: { lat: trip.position.lat, lng: trip.position.lng },
           zoom: 10,
           mapTypeId: google.maps.MapTypeId.TERRAIN,
           disableDefaultUI: true,
           gestureHandling: "greedy"
         });
-        new google.maps.Marker({
-          position: { lat: trip.position.lat, lng: trip.position.lng },
-          map: map
-        });
+        new google.maps.Marker({ position: { lat: trip.position.lat, lng: trip.position.lng }, map: map });
       }
+
+      // All photos below banner
+      const photosDiv = document.getElementById("photos-container");
+      photosDiv.innerHTML = imgUrls.map(u=>`<img src="${u}" alt="${trip.title}" loading="lazy">`).join('');
     })
     .catch(err => {
       console.error(err);
@@ -175,10 +141,10 @@ function initTripGallery() {
     });
 }
 
-// Dynamically load Google Maps
+// Load Google Maps script dynamically
 function loadGoogleMaps() {
   const script = document.createElement('script');
-  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery`;
   script.defer = true;
   document.head.appendChild(script);
 }
