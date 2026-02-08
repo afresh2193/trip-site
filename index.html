@@ -101,30 +101,13 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
   <p>Add videos, links, or widgets</p>
 </div>
 
+<!-- GOOGLE MAPS API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY"></script>
+
 <script>
-let SCRIPT_URL = "";
-let GOOGLE_KEY = "";
+const SCRIPT_URL = "YOUR_APPS_SCRIPT_URL"; // Replace with your Apps Script URL
 
-// Load config.json for API keys
-fetch("config.json")
-  .then(res=>res.json())
-  .then(config=>{
-    GOOGLE_KEY = config.googleMapsKey;
-    SCRIPT_URL = config.appsScriptUrl;
-    loadGoogleMaps(GOOGLE_KEY);
-  })
-  .catch(err=>console.error("Failed to load config.json", err));
-
-function loadGoogleMaps(key){
-  const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
-  script.async = true;
-  script.defer = true;
-  script.onload = initMap;
-  document.head.appendChild(script);
-}
-
-function initMap() {
+window.addEventListener("load", function() {
   const mapDiv = document.getElementById("map");
   const typeFilter = document.getElementById("typeFilter");
   const detailsContent = document.getElementById("details-content");
@@ -134,7 +117,7 @@ function initMap() {
     zoom:6,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
     disableDefaultUI:true,
-    gestureHandling:"greedy"
+    gestureHandling:"greedy" // scroll zoom works without Ctrl
   });
 
   function getMarkerIcon(type){
@@ -155,7 +138,7 @@ function initMap() {
       allMarkersData = data.cardItems;
       updateMarkers();
 
-      // show most recent trip
+      // Show most recent trip
       const sorted = allMarkersData.sort((a,b)=>new Date(b.date)-new Date(a.date));
       if(sorted.length>0) showDetails(sorted[0]);
     })
@@ -193,12 +176,12 @@ function initMap() {
     `;
 
     const goBtn = detailsContent.querySelector(".go-to-page-btn");
-    goBtn.addEventListener("click",()=> {
+    goBtn.addEventListener("click",()=>{
       const slug = data.title.toLowerCase().replace(/\s+/g,'-');
       window.location.href = `trip-gallery.html?slug=${slug}`;
     });
   }
-}
+});
 </script>
 
 </body>
