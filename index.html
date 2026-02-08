@@ -27,7 +27,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 }
 
 #map-container {
-  flex: 3 1 auto;
+  flex: 4 1 auto;
   padding:10px;
 }
 
@@ -35,6 +35,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 
 #details-panel {
   flex: 1 1 auto;
+  max-width: 300px;
   background:#f9f9f9;
   padding:15px;
   overflow-y:auto;
@@ -47,6 +48,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
   margin-bottom:15px;
   border-radius:0;
 }
+
 #details-panel h2 { margin:5px 0; color:#333; }
 #details-panel p { margin:4px 0; font-size:14px; }
 
@@ -101,23 +103,40 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
   <p>Add videos, links, or widgets</p>
 </div>
 
-<!-- GOOGLE MAPS API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA"></script>
-
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; // Replace with your Apps Script URL
+// Config keys loaded from GitHub JSON file
+let SCRIPT_URL = "";
+let GOOGLE_KEY = "";
 
-window.addEventListener("load", function() {
+fetch("config.json")
+  .then(res => res.json())
+  .then(config => {
+    GOOGLE_KEY = config.googleMapsKey;
+    SCRIPT_URL = config.appsScriptUrl;
+    loadGoogleMaps(GOOGLE_KEY);
+  })
+  .catch(err => console.error("Failed to load config.json", err));
+
+function loadGoogleMaps(key) {
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+  script.async = true;
+  script.defer = true;
+  script.onload = initMap;
+  document.head.appendChild(script);
+}
+
+function initMap() {
   const mapDiv = document.getElementById("map");
   const typeFilter = document.getElementById("typeFilter");
   const detailsContent = document.getElementById("details-content");
 
-  const map = new google.maps.Map(mapDiv,{
-    center:{lat:36.805098,lng:-109.822512},
+  const map = new google.maps.Map(mapDiv, {
+    center: {lat:36.805098, lng:-109.822512},
     zoom:6,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
     disableDefaultUI:true,
-    gestureHandling:"greedy" // scroll zoom works without Ctrl
+    gestureHandling:"greedy"
   });
 
   function getMarkerIcon(type){
@@ -138,7 +157,7 @@ window.addEventListener("load", function() {
       allMarkersData = data.cardItems;
       updateMarkers();
 
-      // Show most recent trip
+      // show most recent trip initially
       const sorted = allMarkersData.sort((a,b)=>new Date(b.date)-new Date(a.date));
       if(sorted.length>0) showDetails(sorted[0]);
     })
@@ -158,12 +177,11 @@ window.addEventListener("load", function() {
     });
   }
 
-  typeFilter.addEventListener("change",updateMarkers);
+  typeFilter.addEventListener("change", updateMarkers);
 
   function showDetails(data){
     const urls = data.imageUrl ? data.imageUrl.split(",") : [];
     const imagesHtml = urls.map(u=>`<img src="${u.trim()}" alt="${data.title}">`).join("");
-
     detailsContent.innerHTML = `
       <h2>${data.title}</h2>
       ${imagesHtml}
@@ -176,12 +194,12 @@ window.addEventListener("load", function() {
     `;
 
     const goBtn = detailsContent.querySelector(".go-to-page-btn");
-    goBtn.addEventListener("click",()=>{
+    goBtn.addEventListener("click", ()=>{
       const slug = data.title.toLowerCase().replace(/\s+/g,'-');
       window.location.href = `trip-gallery.html?slug=${slug}`;
     });
   }
-});
+}
 </script>
 
 </body>
