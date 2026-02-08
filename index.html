@@ -102,14 +102,23 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO4sTkkSyeBZmPpFS_bKP783FM-8qPTgCDjqvj5Jy3RBCwjJ_irLmjRT68uA4peryH/exec";
+let SCRIPT_URL = "";
+let GOOGLE_MAPS_KEY = "";
 
-const gMapScript = document.createElement("script");
-gMapScript.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA";
-gMapScript.defer = true;
-gMapScript.onload = initMap;
-document.head.appendChild(gMapScript);
+// Fetch config.json from GitHub
+fetch("config.json")
+  .then(res => res.json())
+  .then(config => {
+    SCRIPT_URL = config.appsScriptUrl;
+    GOOGLE_MAPS_KEY = config.googleMapsKey;
 
+    // Dynamically load Google Maps API
+    const gMapScript = document.createElement("script");
+    gMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}`;
+    gMapScript.defer = true;
+    gMapScript.onload = initMap;
+    document.head.appendChild(gMapScript);
+  })
   .catch(err => console.error("Failed to load config.json", err));
 
 function initMap() {
@@ -170,36 +179,26 @@ function initMap() {
 
   typeFilter.addEventListener("change", updateMarkers);
 
-function showDetails(data){
+  function showDetails(data){
+    const urls = data.imageUrl ? data.imageUrl.split(",") : [];
+    const imagesHtml = urls.map(u => `<img src="${u.trim()}" alt="${data.title}">`).join("");
 
-  const urls = data.imageUrl
-    ? data.imageUrl.split(",").map(u => u.trim()).filter(Boolean)
-    : [];
+    detailsContent.innerHTML = `
+      <h2>${data.title}</h2>
+      ${imagesHtml}
+      <p><strong>Area:</strong> ${data.area}</p>
+      <p><strong>Date:</strong> ${data.date}</p>
+      <p><strong>Miles:</strong> ${data.miles}</p>
+      <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
+      <p><strong>Overall Ranking:</strong> ${data.overallRanking}</p>
+      <button class="go-to-page-btn">Go to Page</button>
+    `;
 
-  const imagesHtml = urls.length
-    ? urls.map(u =>
-        `<img src="${u}" alt="${data.title}" loading="lazy">`
-      ).join("")
-    : "<p>No images available</p>";
-
-  detailsContent.innerHTML = `
-    <h2>${data.title}</h2>
-    ${imagesHtml}
-    <p><strong>Area:</strong> ${data.area || ""}</p>
-    <p><strong>Date:</strong> ${data.date || ""}</p>
-    <p><strong>Miles:</strong> ${data.miles || ""}</p>
-    <p><strong>Elevation Gain:</strong> ${data.elevationGain || ""}</p>
-    <p><strong>Overall Ranking:</strong> ${data.overallRanking || ""}</p>
-    <button class="go-to-page-btn">Go to Page</button>
-  `;
-
-  const goBtn = detailsContent.querySelector(".go-to-page-btn");
-
-  goBtn.addEventListener("click", ()=>{
-    const slug = data.title.toLowerCase().replace(/\s+/g,'-');
-    window.location.href = `trip-gallery.html?slug=${slug}`;
-  });
-}
+    const goBtn = detailsContent.querySelector(".go-to-page-btn");
+    goBtn.addEventListener("click", ()=>{
+      const slug = data.title.toLowerCase().replace(/\s+/g,'-');
+      window.location.href = `trip-gallery.html?slug=${slug}`;
+    });
   }
 }
 </script>
