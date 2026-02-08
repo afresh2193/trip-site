@@ -34,7 +34,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 #map { width:100%; height:100%; }
 
 #details-panel {
-  flex: 1 1 auto;
+  flex: 0 1 25%; /* slightly narrower sidebar */
   background:#f9f9f9;
   padding:15px;
   overflow-y:auto;
@@ -63,7 +63,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 @media(max-width:900px){
   #container { flex-direction: column; }
   #map-container { flex: 1 1 100%; }
-  #details-panel { max-height:none; border-left:none; border-top:1px solid #ccc; margin-top:10px; }
+  #details-panel { max-height:none; border-left:none; border-top:1px solid #ccc; margin-top:10px; flex: 1 1 auto; }
 }
 </style>
 </head>
@@ -105,7 +105,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; // Replace with your Apps Script URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; // Keep your Apps Script URL here
 
 window.addEventListener("load", function() {
   const mapDiv = document.getElementById("map");
@@ -138,7 +138,7 @@ window.addEventListener("load", function() {
       allMarkersData = data.cardItems;
       updateMarkers();
 
-      // Show most recent trip
+      // Show most recent trip on load
       const sorted = allMarkersData.sort((a,b)=>new Date(b.date)-new Date(a.date));
       if(sorted.length>0) showDetails(sorted[0]);
     })
