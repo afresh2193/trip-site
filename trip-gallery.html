@@ -6,10 +6,11 @@
 <title>Trip Gallery</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
+  font-family: Arial, sans-serif;
   background: #f2f2f2;
 }
+
 header {
   text-align: center;
   padding: 30px 20px 20px 20px;
@@ -19,6 +20,8 @@ header h1 {
   font-size: 36px;
   color: #333;
 }
+
+/* Top three components container */
 .trip-container {
   display: flex;
   flex-wrap: wrap;
@@ -28,30 +31,39 @@ header h1 {
   max-width: 1200px;
   gap: 20px;
 }
+
 .trip-info, .trip-cover, .trip-map {
   background: #fff;
   padding: 15px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 6px;
 }
+
 .trip-info { flex: 1 1 200px; min-width: 200px; }
 .trip-info p { margin: 5px 0; }
+
 .trip-cover { flex: 1 1 400px; text-align: center; }
-.trip-cover img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 0; }
+.trip-cover img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 0;
+  display: block;
+  margin: 0 auto;
+}
+
 .trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; }
 
-/* WriteUp section (below top components, above banner) */
-.writeup-section {
-  margin: 20px auto;
+.writeup {
   max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
   background: #fff;
-  padding: 25px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  font-size: 16px;
   line-height: 1.6;
+  font-size: 16px;
   color: #333;
-  white-space: pre-wrap; /* preserve line breaks from Google Sheet */
 }
 
 .banner {
@@ -69,24 +81,26 @@ header h1 {
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; /* center photos */
   gap: 20px;
 }
+
 .photos-container img {
-  width: 100%;
-  max-width: 900px;
+  width: 90%;
+  max-width: 800px;
   border-radius: 0;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.5s ease-in;
-}
-.photos-container img.loaded {
-  opacity: 1;
+  display: block;
+  loading: lazy;
 }
 
 @media (max-width: 900px) {
-  .trip-container { flex-direction: column; }
-  .trip-map, .trip-cover, .trip-info { min-width: 100%; }
+  .trip-container {
+    flex-direction: column;
+  }
+  .trip-map, .trip-cover, .trip-info {
+    min-width: 100%;
+  }
 }
 </style>
 </head>
@@ -102,10 +116,8 @@ header h1 {
   <div class="trip-map" id="trip-map"></div>
 </div>
 
-<!-- WriteUp goes below top components and above banner -->
-<div class="writeup-section" id="trip-writeup">
-  <!-- Populated from WriteUp column -->
-</div>
+<!-- WriteUp section -->
+<div class="writeup" id="trip-writeup"></div>
 
 <div class="banner">
   Your small banner text goes here
@@ -114,7 +126,7 @@ header h1 {
 <div class="photos-container" id="photos-container"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO4sTkkSyeBZmPpFS_bKP783FM-8qPTgCDjqvj5Jy3RBCwjJ_irLmjRT68uA4peryH/exec";
 const params = new URLSearchParams(window.location.search);
 const slug = params.get('slug');
 
@@ -128,7 +140,6 @@ function initTripGallery() {
         return;
       }
 
-      // Title
       document.getElementById("trip-title").innerText = trip.title;
 
       // Left info column
@@ -140,10 +151,10 @@ function initTripGallery() {
         <p><strong>Type:</strong> ${trip.type}</p>
       `;
 
-      // Cover photo (from imageUrl column)
+      // Cover photo middle column (from imageUrl column)
       document.getElementById("trip-cover").innerHTML = `<img src="${trip.imageUrl}" alt="${trip.title}" loading="lazy">`;
 
-      // Map
+      // Small map right column
       const mapDiv = document.getElementById("trip-map");
       const map = new google.maps.Map(mapDiv, {
         center: { lat: trip.position.lat, lng: trip.position.lng },
@@ -157,13 +168,13 @@ function initTripGallery() {
         map: map
       });
 
-      // WriteUp text
+      // WriteUp section
       document.getElementById("trip-writeup").innerText = trip.WriteUp || "";
 
-      // All photos from Imagefolder column
+      // All photos below banner (from Imagefolder column)
       const urls = data.images[slug] || [];
-      const photosContainer = document.getElementById("photos-container");
-      photosContainer.innerHTML = urls.map(u => `<img src="${u}" alt="${trip.title}" loading="lazy" class="loaded">`).join("");
+      document.getElementById("photos-container").innerHTML =
+        urls.map(u => `<img src="${u}" alt="${trip.title}" loading="lazy">`).join("");
     })
     .catch(err => {
       console.error(err);
@@ -171,7 +182,7 @@ function initTripGallery() {
     });
 }
 
-// Load Google Maps dynamically
+// Dynamically load Google Maps script
 function loadGoogleMaps() {
   const script = document.createElement('script');
   script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
@@ -179,7 +190,6 @@ function loadGoogleMaps() {
   document.head.appendChild(script);
 }
 
-// Start
 loadGoogleMaps();
 </script>
 
