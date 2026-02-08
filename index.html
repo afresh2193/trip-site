@@ -20,7 +20,10 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 }
 
 #container {
-  display: flex;
+  display: flex;         /* sidebar stays to the right */
+  flex-direction: row;
+  height: 80vh;
+  min-height: 500px;
 }
 
 #map-container {
@@ -30,15 +33,16 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 
 #map {
   width: 100%;
-  height: 80vh;
-  min-height: 500px;
+  height: 100%;
 }
 
 #details-panel {
-  flex: 1 0 30%; /* sidebar width */
-  max-height: 80vh;
-  overflow-y: auto;
-  border-left: 1px solid #ccc;
+  flex: 1 0 30%;
+  background:#f9f9f9;
+  padding:15px;
+  overflow-y:auto;
+  border-left:1px solid #ccc;
+  max-height:100%;
 }
 
 #details-panel img {
@@ -65,7 +69,7 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 @media(max-width:900px){
   #container { flex-direction: column; }
   #map-container { flex: 1 1 100%; }
-  #details-panel { flex: 1 1 100%; max-height:none; border-left:none; border-top:1px solid #ccc; margin-top:10px; }
+  #details-panel { max-height:none; border-left:none; border-top:1px solid #ccc; margin-top:10px; }
 }
 </style>
 </head>
@@ -119,14 +123,13 @@ function initMap(scriptUrl){
   const typeFilter = document.getElementById("typeFilter");
   const detailsContent = document.getElementById("details-content");
 
-const map = new google.maps.Map(mapDiv, {
-  center: {lat: 36.805098, lng: -109.822512},
-  zoom: 6,
-  mapTypeId: google.maps.MapTypeId.TERRAIN,
-  disableDefaultUI: true,
-  gestureHandling: "greedy" // <-- allows scroll zoom without Ctrl
-});
-
+  const map = new google.maps.Map(mapDiv,{
+    center:{lat:36.805098,lng:-109.822512},
+    zoom:6,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
+    disableDefaultUI:true,
+    gestureHandling: "greedy" // scroll zoom without Ctrl
+  });
 
   function getMarkerIcon(type){
     switch(type.toLowerCase()){
@@ -145,7 +148,12 @@ const map = new google.maps.Map(mapDiv, {
     .then(data=>{
       allMarkersData = data.cardItems;
       updateMarkers();
-    }).catch(err=>console.error("Markers load failed", err));
+
+      // show most recent trip in sidebar on load
+      const sorted = allMarkersData.sort((a,b)=>new Date(b.date) - new Date(a.date));
+      if(sorted.length>0) showDetails(sorted[0]);
+    })
+    .catch(err=>console.error("Markers load failed", err));
 
   function updateMarkers(){
     mapMarkers.forEach(m=>m.setMap(null));
