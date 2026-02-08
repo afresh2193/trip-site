@@ -1,109 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trip Gallery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Gallery</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
 
-header {
-  text-align: center;
-  padding: 30px 20px 20px 20px;
-}
-header h1 {
-  margin: 0;
-  font-size: 36px;
-  color: #333;
-}
+    header {
+      text-align: center;
+      padding: 30px 20px 20px 20px;
+    }
 
-/* Top three components */
-.trip-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 20px;
-  margin: 0 auto;
-  max-width: 1200px;
-  gap: 20px;
-}
+    header h1 {
+      margin: 0;
+      font-size: 36px;
+      color: #333;
+    }
 
-.trip-info,
-.trip-cover,
-.trip-map {
-  background: #fff;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  border-radius: 6px;
-}
+    /* Top three components */
+    .trip-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: 20px;
+      margin: 0 auto;
+      max-width: 1200px;
+      gap: 20px;
+    }
 
-.trip-info { flex: 1 1 200px; min-width: 200px; }
-.trip-info p { margin: 5px 0; }
+    .trip-info,
+    .trip-cover,
+    .trip-map {
+      background: #fff;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+    }
 
-.trip-cover { flex: 1 1 400px; text-align: center; }
-.trip-cover img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto;
-}
+    .trip-info {
+      flex: 1 1 200px;
+      min-width: 200px;
+    }
 
-.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; }
+    .trip-info p {
+      margin: 5px 0;
+    }
 
-/* WRITEUP */
-.writeup {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 24px 28px;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  line-height: 1.7;
-  font-size: 16px;
-  color: #333;
-}
+    .trip-cover {
+      flex: 1 1 400px;
+      text-align: center;
+    }
 
-/* Banner */
-.banner {
-  margin: 20px auto;
-  max-width: 1200px;
-  padding: 15px;
-  text-align: center;
-  background-color: #444;
-  color: #fff;
-  font-size: 18px;
-}
+    .trip-cover img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto;
+    }
 
-/* Photos */
-.photos-container {
-  margin: 20px auto;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
+    .trip-map {
+      flex: 1 1 300px;
+      min-width: 300px;
+      height: 300px;
+    }
 
-.photos-container img {
-  width: 90%;
-  max-width: 800px;
-  object-fit: cover;
-  display: block;
-}
+    /* WRITEUP */
+    .writeup {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 24px 28px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      line-height: 1.7;
+      font-size: 16px;
+      color: #333;
+    }
 
-/* Mobile */
-@media (max-width: 900px) {
-  .trip-container {
-    flex-direction: column;
-  }
-}
-</style>
+    /* Banner */
+    .banner {
+      margin: 20px auto;
+      max-width: 1200px;
+      padding: 15px;
+      text-align: center;
+      background-color: #444;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    /* Photos */
+    .photos-container {
+      margin: 20px auto;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .photos-container img {
+      width: 90%;
+      max-width: 800px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .trip-container {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -137,6 +152,25 @@ const slug = params.get("slug");
 // Helper: convert title → slug
 function makeSlug(text){
   return text.toLowerCase().replace(/\s+/g,"-");
+}
+
+// ---------------------- FIX GOOGLE DRIVE IMAGE LINKS ----------------------
+// Function to convert Google Drive links to the correct format
+function fixGoogleDriveLinks() {
+  const images = document.querySelectorAll('img');
+  
+  images.forEach(image => {
+    const currentSrc = image.src;
+
+    // Check if the link is from Google Drive and in the old format
+    if (currentSrc.includes("drive.google.com/file/d/") && currentSrc.includes("/view?usp=drive_link")) {
+      const fileId = currentSrc.match(/\/d\/(.*)\/view/)[1];
+      const newSrc = `https://drive.google.com/uc?id=${fileId}`;
+      
+      // Update the image source
+      image.src = newSrc;
+    }
+  });
 }
 
 // ---------------------- INIT ----------------------
@@ -194,6 +228,9 @@ function initTripGallery() {
         urls.length > 0
           ? urls.map(u => `<img src="${u}" alt="${trip.title}" loading="lazy">`).join("")
           : "No photos found for this trip.";
+
+      // Fix Google Drive links for photos
+      fixGoogleDriveLinks();
     })
     .catch(err => {
       console.error(err);
@@ -208,28 +245,6 @@ function loadGoogleMaps() {
   s.defer = true;
   document.head.appendChild(s);
 }
-
-// ---------------------- FIX GOOGLE DRIVE IMAGE LINKS ----------------------
-// Function to convert Google Drive links to the correct format
-function fixGoogleDriveLinks() {
-  const images = document.querySelectorAll('img');
-  
-  images.forEach(image => {
-    const currentSrc = image.src;
-
-    // Check if the link is from Google Drive and in the old format
-    if (currentSrc.includes("drive.google.com/file/d/") && currentSrc.includes("/view?usp=drive_link")) {
-      const fileId = currentSrc.match(/\/d\/(.*)\/view/)[1];
-      const newSrc = `https://drive.google.com/uc?id=${fileId}`;
-      
-      // Update the image source
-      image.src = newSrc;
-    }
-  });
-}
-
-// Call the fix after all images are loaded
-window.addEventListener('load', fixGoogleDriveLinks);
 
 // Start
 loadGoogleMaps();
