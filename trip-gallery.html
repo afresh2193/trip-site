@@ -41,16 +41,12 @@ header h1 {
   flex: 1 1 200px;
   min-width: 200px;
 }
-
-.trip-info p {
-  margin: 5px 0;
-}
+.trip-info p { margin: 5px 0; }
 
 .trip-cover {
   flex: 1 1 400px;
   text-align: center;
 }
-
 .trip-cover img {
   width: 100%;
   max-height: 300px;
@@ -85,8 +81,6 @@ header h1 {
 .photos-container img {
   width: 100%;
   border-radius: 0;
-  object-fit: cover;
-  max-height: 600px;
   loading: lazy;
 }
 
@@ -107,89 +101,84 @@ header h1 {
 </header>
 
 <div class="trip-container">
-  <div class="trip-info" id="trip-info">
-    <!-- Trip details go here -->
-  </div>
-  <div class="trip-cover" id="trip-cover">
-    <!-- Cover photo goes here -->
-  </div>
-  <div class="trip-map" id="trip-map">
-    <!-- Small map goes here -->
-  </div>
+  <div class="trip-info" id="trip-info"></div>
+  <div class="trip-cover" id="trip-cover"></div>
+  <div class="trip-map" id="trip-map"></div>
 </div>
 
 <div class="banner">
   Your small banner text goes here
 </div>
 
-<div class="photos-container" id="photos-container">
-  <!-- All images stacked here -->
-</div>
+<div class="photos-container" id="photos-container"></div>
 
 <script>
-// CONFIG: replace with your Apps Script URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec"; 
-// replace with your Google Maps API key
-const GOOGLE_MAPS_KEY = "AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA";
-
-// get slug from URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoUNNQZsKfLkEYcc4DfyVQkzuc3BGGXd-DDV0dAfMHhhE5i_FY3Bq5z8PBUhg2teot/exec";
 const params = new URLSearchParams(window.location.search);
 const slug = params.get('slug');
 
-fetch(SCRIPT_URL)
-  .then(res => res.json())
-  .then(data => {
-    const trip = data.cardItems.find(t => t.title.toLowerCase().replace(/\s+/g,'-') === slug);
-    if (!trip) {
-      document.getElementById("trip-title").innerText = "Trip not found";
-      return;
-    }
+// Wait for Google Maps to load
+function initTripGallery() {
+  fetch(SCRIPT_URL)
+    .then(res => res.json())
+    .then(data => {
+      const trip = data.cardItems.find(t => t.title.toLowerCase().replace(/\s+/g,'-') === slug);
+      if(!trip){
+        document.getElementById("trip-title").innerText = "Trip not found";
+        return;
+      }
 
-    // Title
-    document.getElementById("trip-title").innerText = trip.title;
+      document.getElementById("trip-title").innerText = trip.title;
 
-    // Trip info left column
-    const infoHtml = `
-      <p><strong>Date:</strong> ${trip.date}</p>
-      <p><strong>Area:</strong> ${trip.area}</p>
-      <p><strong>Miles:</strong> ${trip.miles}</p>
-      <p><strong>Elevation Gain:</strong> ${trip.elevationGain}</p>
-      <p><strong>Type:</strong> ${trip.type}</p>
-    `;
-    document.getElementById("trip-info").innerHTML = infoHtml;
+      // Left info column
+      document.getElementById("trip-info").innerHTML = `
+        <p><strong>Date:</strong> ${trip.date}</p>
+        <p><strong>Area:</strong> ${trip.area}</p>
+        <p><strong>Miles:</strong> ${trip.miles}</p>
+        <p><strong>Elevation Gain:</strong> ${trip.elevationGain}</p>
+        <p><strong>Type:</strong> ${trip.type}</p>
+      `;
 
-    // Cover photo middle column (first photo)
-    const firstPhoto = trip.imageUrl.split(",")[0].trim();
-    document.getElementById("trip-cover").innerHTML = `<img src="${firstPhoto}" alt="${trip.title}" loading="lazy">`;
+      // Cover photo
+      const firstPhoto = trip.imageUrl.split(",")[0].trim();
+      document.getElementById("trip-cover").innerHTML = `<img src="${firstPhoto}" alt="${trip.title}" loading="lazy">`;
 
-    // Small map right column
-    const mapDiv = document.getElementById("trip-map");
-    const map = new google.maps.Map(mapDiv, {
-      center: { lat: trip.position.lat, lng: trip.position.lng },
-      zoom: 10,
-      mapTypeId: google.maps.MapTypeId.TERRAIN,
-      disableDefaultUI: true,
-      gestureHandling: "greedy"
+      // Map
+      const mapDiv = document.getElementById("trip-map");
+      const map = new google.maps.Map(mapDiv, {
+        center: { lat: trip.position.lat, lng: trip.position.lng },
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+        disableDefaultUI: true,
+        gestureHandling: "greedy"
+      });
+      new google.maps.Marker({
+        position: { lat: trip.position.lat, lng: trip.position.lng },
+        map: map
+      });
+
+      // All photos
+      const urls = trip.imageUrl.split(",");
+      document.getElementById("photos-container").innerHTML =
+        urls.map(u => `<img src="${u.trim()}" alt="${trip.title}" loading="lazy">`).join("");
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("trip-title").innerText = "Failed to load trip data";
     });
-    new google.maps.Marker({
-      position: { lat: trip.position.lat, lng: trip.position.lng },
-      map: map
-    });
+}
 
-    // All photos below banner
-    const photosDiv = document.getElementById("photos-container");
-    const urls = trip.imageUrl.split(",");
-    photosDiv.innerHTML = urls.map(u => `<img src="${u.trim()}" alt="${trip.title}" loading="lazy">`).join("");
+// Dynamically load Google Maps script and call initTripGallery after load
+function loadGoogleMaps() {
+  const script = document.createElement('script');
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
+  script.defer = true;
+  document.head.appendChild(script);
+}
 
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById("trip-title").innerText = "Failed to load trip data";
-  });
+// Start
+loadGoogleMaps();
 </script>
-
-<!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA"></script>
 
 </body>
 </html>
