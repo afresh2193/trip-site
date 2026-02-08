@@ -53,6 +53,7 @@ header h1 {
   max-width: 1200px;
   display: flex;
   flex-direction: column;
+  align-items: center; /* center images */
   gap: 20px;
 }
 .photos-container img {
@@ -60,7 +61,11 @@ header h1 {
   max-width: 900px;
   border-radius: 0;
   object-fit: cover;
-  loading: lazy;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+.photos-container img.loaded {
+  opacity: 1;
 }
 @media (max-width: 900px) {
   .trip-container { flex-direction: column; }
@@ -95,7 +100,6 @@ function initTripGallery() {
   fetch(SCRIPT_URL)
     .then(res => res.json())
     .then(data => {
-      // Find the trip by slug
       const trip = data.cardItems.find(t => t.title.toLowerCase().replace(/\s+/g,'-') === slug);
       if(!trip){
         document.getElementById("trip-title").innerText = "Trip not found";
@@ -118,8 +122,30 @@ function initTripGallery() {
       if(imgUrls.length > 0){
         // First photo for cover
         document.getElementById("trip-cover").innerHTML = `<img src="${imgUrls[0]}" alt="${trip.title}" loading="lazy">`;
-        // Remaining/all photos below banner
-        document.getElementById("photos-container").innerHTML = imgUrls.map(u => `<img src="${u}" alt="${trip.title}" loading="lazy">`).join('');
+
+        // Progressive lazy load for all photos below banner
+        const photosContainer = document.getElementById("photos-container");
+        imgUrls.forEach(url => {
+          const img = document.createElement('img');
+          img.dataset.src = url;
+          img.alt = trip.title;
+          photosContainer.appendChild(img);
+        });
+
+        // Lazy loading with IntersectionObserver
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if(entry.isIntersecting){
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.onload = () => img.classList.add('loaded');
+              obs.unobserve(img);
+            }
+          });
+        }, { rootMargin: '0px 0px 100px 0px' });
+
+        document.querySelectorAll('.photos-container img').forEach(img => observer.observe(img));
+
       } else {
         document.getElementById("trip-cover").innerHTML = '';
         document.getElementById("photos-container").innerHTML = '<p>No photos available.</p>';
