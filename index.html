@@ -170,26 +170,36 @@ function initMap() {
 
   typeFilter.addEventListener("change", updateMarkers);
 
-  function showDetails(data){
-    const urls = data.imageUrl ? data.imageUrl.split(",") : [];
-    const imagesHtml = urls.map(u => `<img src="${u.trim()}" alt="${data.title}">`).join("");
+function showDetails(data){
 
-    detailsContent.innerHTML = `
-      <h2>${data.title}</h2>
-      ${imagesHtml}
-      <p><strong>Area:</strong> ${data.area}</p>
-      <p><strong>Date:</strong> ${data.date}</p>
-      <p><strong>Miles:</strong> ${data.miles}</p>
-      <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
-      <p><strong>Overall Ranking:</strong> ${data.overallRanking}</p>
-      <button class="go-to-page-btn">Go to Page</button>
-    `;
+  const urls = data.imageUrl
+    ? data.imageUrl.split(",").map(u => u.trim()).filter(Boolean)
+    : [];
 
-    const goBtn = detailsContent.querySelector(".go-to-page-btn");
-    goBtn.addEventListener("click", ()=>{
-      const slug = data.title.toLowerCase().replace(/\s+/g,'-');
-      window.location.href = `trip-gallery.html?slug=${slug}`;
-    });
+  const imagesHtml = urls.length
+    ? urls.map(u =>
+        `<img src="${u}" alt="${data.title}" loading="lazy">`
+      ).join("")
+    : "<p>No images available</p>";
+
+  detailsContent.innerHTML = `
+    <h2>${data.title}</h2>
+    ${imagesHtml}
+    <p><strong>Area:</strong> ${data.area || ""}</p>
+    <p><strong>Date:</strong> ${data.date || ""}</p>
+    <p><strong>Miles:</strong> ${data.miles || ""}</p>
+    <p><strong>Elevation Gain:</strong> ${data.elevationGain || ""}</p>
+    <p><strong>Overall Ranking:</strong> ${data.overallRanking || ""}</p>
+    <button class="go-to-page-btn">Go to Page</button>
+  `;
+
+  const goBtn = detailsContent.querySelector(".go-to-page-btn");
+
+  goBtn.addEventListener("click", ()=>{
+    const slug = data.title.toLowerCase().replace(/\s+/g,'-');
+    window.location.href = `trip-gallery.html?slug=${slug}`;
+  });
+}
   }
 }
 </script>
