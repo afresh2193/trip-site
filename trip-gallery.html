@@ -116,10 +116,8 @@ const slug = params.get('slug');
 fetch(SCRIPT_URL)
   .then(res => res.json())
   .then(data => {
-    const trip = data.cardItems.find(t => t.title.toLowerCase().replace(/\s+/g,'-') === slug);
-    if (!trip) {
-      document.getElementById("trip-title").innerText = "Trip not found";
-      return;
+    console.log("Data loaded:", data);
+
     }
 
     // Title
