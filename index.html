@@ -11,7 +11,6 @@ body {
   font-family: Arial,sans-serif; 
   background:#f2f2f2; 
   padding-top:60px;
-  box-sizing:border-box;
 }
 
 /* ===== HEADER ===== */
@@ -25,40 +24,37 @@ body {
   text-align:center; 
   padding:12px 20px;
 }
+.header h1 { margin:0; font-size:24px; }
+.header p { margin:3px 0 0; font-size:14px; }
 
-/* ===== SHARED WIDTH ===== */
+/* ===== SHARED PAGE WIDTH ===== */
 .page-width {
-  max-width:1480px;   /* Wider */
-  margin:0 auto;
-  padding:0 12px;
+  max-width: 1320px;   /* Increased width */
+  margin: 0 auto;
+  padding: 0 10px;
 }
 
-/* ===== FILTERS ===== */
+/* ===== FILTER ===== */
 #filters {
-  background:white;
-  padding:12px;
-  margin:15px 0 5px 0;
-  border-radius:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  display:flex;
-  gap:20px;
-  flex-wrap:wrap;
-}
-
-#filters label {
-  font-size:14px;
+  position:absolute; 
+  z-index:999;
+  background:white; 
+  padding:10px; 
+  margin:10px;
+  border-radius:6px; 
+  box-shadow:0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ===== MAP + SIDEBAR ===== */
 #container {
   display:flex;
   height:80vh;
-  min-height:520px;
+  min-height:500px;
 }
 
 #map-container { 
-  flex:3;
-  padding:10px 10px 10px 0;  /* Fix width mismatch */
+  flex:3; 
+  padding:10px; 
 }
 
 #map { 
@@ -74,16 +70,31 @@ body {
   border-left:1px solid #ccc;
 }
 
-#details-panel img { width:100%; margin-bottom:15px; }
+#details-panel img { 
+  width:100%; 
+  margin-bottom:15px; 
+}
 
-/* ===== CARDS ===== */
+.go-to-page-btn {
+  background:#28a745; 
+  color:white; 
+  padding:12px;
+  border:none; 
+  width:100%; 
+  font-size:18px;
+  cursor:pointer; 
+  margin-top:15px;
+}
+.go-to-page-btn:hover { background:#218838; }
+
+/* ===== TRIP CARDS SECTION ===== */
 .cards-container {
   display:flex;
   flex-direction:column;
   gap:20px;
-  max-width:1480px;   /* Match map */
+  max-width:1320px;   /* Match map width */
   margin:40px auto;
-  padding:0 12px;
+  padding:0 10px;
 }
 
 .trip-card {
@@ -93,6 +104,12 @@ body {
   border-radius:8px;
   overflow:hidden;
   box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.trip-card:hover {
+  transform: translateY(-4px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
 }
 
 .trip-info {
@@ -100,66 +117,72 @@ body {
   background:#333;
   color:white;
   padding:20px;
-  min-width:200px;
+  min-width:180px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:6px;
+}
+
+.trip-info p { 
+  margin:2px 0; 
+  font-size:14px; 
 }
 
 .trip-photo {
   flex:3.2;
   background-size:cover;
   background-position:center;
-  min-height:420px;
+  min-height:400px;
+}
+
+/* ===== SPACER ===== */
+.spacer { height:30px; }
+
+.show-more-btn {
+  margin: 20px auto;
+  display: block;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+.show-more-btn:hover {
+  background: #555;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
+<!-- ===== HEADER ===== -->
 <div class="header">
   <h1>My Travel Map</h1>
+  <p>Click a location to view the trip gallery</p>
 </div>
 
+<!-- ===== FILTER ===== -->
+<div id="filters">
+  <label>
+    Type:
+    <select id="typeFilter">
+      <option value="All">All</option>
+      <option value="Hike">Hike</option>
+      <option value="Backpack">Backpack</option>
+      <option value="Kayak">Kayak</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+</div>
+
+<!-- ===== MAP + SIDEBAR (NOW SAME WIDTH AS CARDS) ===== -->
 <div class="page-width">
-
-  <!-- FILTERS -->
-  <div id="filters">
-    
-    <label>
-      Type:
-      <select id="typeFilter">
-        <option value="All">All</option>
-        <option value="Hike">Hike</option>
-        <option value="Backpack">Backpack</option>
-        <option value="Kayak">Kayak</option>
-        <option value="Other">Other</option>
-      </select>
-    </label>
-
-    <label>
-      Year:
-      <select id="yearFilter">
-        <option value="All">All</option>
-      </select>
-    </label>
-
-    <label>
-      Miles:
-      <select id="milesFilter">
-        <option value="All">All</option>
-        <option value="0-1000">0-1000</option>
-        <option value="1000-2000">1000-2000</option>
-        <option value="2000-3000">2000-3000</option>
-        <option value="3000-4000">3000-4000</option>
-        <option value="4000-5000">4000-5000</option>
-        <option value="5000+">5000+</option>
-      </select>
-    </label>
-
-  </div>
-
-  <!-- MAP + SIDEBAR -->
   <div id="container">
-
+    
     <div id="map-container">
       <div id="map"></div>
     </div>
@@ -169,26 +192,32 @@ body {
     </div>
 
   </div>
-
 </div>
 
-<!-- CARDS -->
+<!-- ===== SPACER ===== -->
+<div class="spacer"></div>
+
+<!-- ===== TRIP CARDS ===== -->
 <div class="cards-container" id="cards-container">
   Loading trips...
 </div>
 
 <script>
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycby_5e7cG_REtJkwr6TPDp4oWLoi6H52u3EBswtjLmzvM1UT5bSxDKp3P4SQ5tBoMMYf/exec";
+/* ===== CONFIG ===== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_5e7cG_REtJkwr6TPDp4oWLoi6H52u3EBswtjLmzvM1UT5bSxDKp3P4SQ5tBoMMYf/exec";
+const GOOGLE_MAPS_KEY = "AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA";
 
+/* ===== MAP ===== */
 let map;
-let allTrips=[];
-let markers=[];
+let allMarkersData = [];
+let mapMarkers = [];
 
 function initMap(){
-  map=new google.maps.Map(document.getElementById("map"),{
-    center:{lat:36.8,lng:-109.8},
+  map = new google.maps.Map(document.getElementById("map"),{
+    center:{lat:36.805098,lng:-109.822512},
     zoom:6,
     mapTypeId:"terrain",
+    gestureHandling:"greedy",
     disableDefaultUI:true
   });
   loadTrips();
@@ -196,115 +225,140 @@ function initMap(){
 
 function loadTrips(){
   fetch(SCRIPT_URL)
-  .then(r=>r.json())
-  .then(data=>{
-    allTrips=data.cardItems;
-    populateYearFilter();
-    applyFilters();
-  });
+    .then(res=>res.json())
+    .then(data=>{
+      allMarkersData = data.cardItems;
+      updateMarkers();
+
+      const sorted = [...allMarkersData].sort((a,b)=> new Date(b.date)-new Date(a.date));
+      if(sorted.length) showDetails(sorted[0]);
+
+      loadTripCards(data.cardItems);
+    });
 }
 
-/* ===== FILTER HELPERS ===== */
-
-function populateYearFilter(){
-  const years=[...new Set(
-    allTrips.map(t=> new Date(t.date).getFullYear())
-  )].sort((a,b)=>b-a);
-
-  const sel=document.getElementById("yearFilter");
-
-  years.forEach(y=>{
-    const o=document.createElement("option");
-    o.value=y;
-    o.textContent=y;
-    sel.appendChild(o);
-  });
+function getMarkerIcon(type){
+  switch(type?.toLowerCase()){
+    case "hike": return "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+    case "backpack": return "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+    case "kayak": return "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+    default: return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+  }
 }
 
-function milesMatch(miles,bucket){
-  miles=parseFloat(miles)||0;
+function updateMarkers(){
+  mapMarkers.forEach(m=>m.setMap(null));
+  mapMarkers=[];
 
-  if(bucket==="All") return true;
-  if(bucket==="5000+") return miles>=5000;
+  const selected = document.getElementById("typeFilter").value;
 
-  const [min,max]=bucket.split("-").map(Number);
-  return miles>=min && miles<max;
-}
+  allMarkersData.forEach(d=>{
+    if(selected!=="All" && d.type!==selected) return;
+    if(!d.position) return;
 
-/* ===== APPLY FILTERS ===== */
-
-function applyFilters(){
-
-  const type=document.getElementById("typeFilter").value;
-  const year=document.getElementById("yearFilter").value;
-  const miles=document.getElementById("milesFilter").value;
-
-  const filtered=allTrips.filter(t=>{
-
-    if(type!=="All" && t.type!==type) return false;
-
-    if(year!=="All"){
-      if(new Date(t.date).getFullYear()!=year) return false;
-    }
-
-    if(!milesMatch(t.miles,miles)) return false;
-
-    return true;
-  });
-
-  updateMarkers(filtered);
-  loadCards(filtered);
-}
-
-/* ===== MARKERS ===== */
-
-function updateMarkers(trips){
-
-  markers.forEach(m=>m.setMap(null));
-  markers=[];
-
-  trips.forEach(t=>{
-    if(!t.position) return;
-
-    const m=new google.maps.Marker({
-      position:t.position,
-      map
+    const marker = new google.maps.Marker({
+      position:d.position,
+      map,
+      icon:getMarkerIcon(d.type)
     });
 
-    markers.push(m);
+    marker.addListener("click",()=>showDetails(d));
+    mapMarkers.push(marker);
   });
 }
 
-/* ===== CARDS ===== */
+document.getElementById("typeFilter").addEventListener("change",updateMarkers);
 
-function loadCards(trips){
+function showDetails(data){
+  const urls = data.imageUrl?.split(",").map(u=>u.trim()) || [];
 
-  const c=document.getElementById("cards-container");
-  c.innerHTML="";
+  const imagesHtml = urls.map(u=>`<img src="${u}">`).join("");
 
-  trips.forEach(t=>{
-    const d=document.createElement("div");
-    d.className="trip-card";
-    d.innerHTML=`
+  document.getElementById("details-content").innerHTML=`
+    <h2>${data.title}</h2>
+    ${imagesHtml}
+    <p><strong>Area:</strong> ${data.area}</p>
+    <p><strong>Date:</strong> ${data.date}</p>
+    <p><strong>Miles:</strong> ${data.miles}</p>
+    <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
+    <button class="go-to-page-btn">Go to Page</button>
+  `;
+
+  document.querySelector(".go-to-page-btn").onclick=()=>{
+    const slug = data.title.toLowerCase().replace(/\s+/g,'-');
+    window.location.href = `trip-gallery.html?slug=${slug}`;
+  };
+}
+
+/* ===== TRIP CARDS ===== */
+const MAX_CARDS = 50;
+let currentCardCount = 0;
+
+function loadTripCards(trips){
+
+  const container = document.getElementById('cards-container');
+  container.innerHTML='';
+
+  const sorted = trips.sort((a,b)=> new Date(b.date)-new Date(a.date));
+
+  function createCard(trip){
+
+    const slug = trip.title.toLowerCase().replace(/\s+/g,'-');
+    const photo = trip.imageUrl || '';
+
+    const card = document.createElement('div');
+    card.className='trip-card';
+    card.onclick=()=> window.location.href=`trip-gallery.html?slug=${slug}`;
+
+    card.innerHTML=`
       <div class="trip-info">
-        <p><strong>${t.title}</strong></p>
-        <p>${t.area||""}</p>
-        <p>${t.date}</p>
-        <p>${t.miles} miles</p>
+        <p><strong>Hike:</strong> ${trip.title}</p>
+        <p><strong>Area:</strong> ${trip.area || ''}</p>
+        <p><strong>Date:</strong> ${trip.date}</p>
+        <p><strong>Miles:</strong> ${trip.miles || 0}</p>
+        <p><strong>Elevation Gain:</strong> ${trip.elevationGain || 0}</p>
+        <p><strong>Type:</strong> ${trip.type || ''}</p>
       </div>
-      <div class="trip-photo"
-        style="background-image:url('${t.imageUrl||""}')">
+
+      <div class="trip-photo" 
+           style="background-image:url('${photo}')">
       </div>
     `;
-    c.appendChild(d);
-  });
-}
 
-/* ===== EVENTS ===== */
-document.querySelectorAll("#filters select")
-.forEach(s=>s.addEventListener("change",applyFilters));
+    return card;
+  }
+
+  function renderBatch(){
+
+    const batch = sorted.slice(currentCardCount, currentCardCount + MAX_CARDS);
+
+    batch.forEach(trip=> container.appendChild(createCard(trip)));
+
+    currentCardCount += batch.length;
+
+    if(currentCardCount < sorted.length){
+
+      let btn = container.querySelector('.show-more-btn');
+
+      if(!btn){
+        btn = document.createElement('button');
+        btn.className='show-more-btn';
+        btn.innerText='Show More';
+        btn.onclick=renderBatch;
+        container.appendChild(btn);
+      }
+
+    } else {
+      const btn = container.querySelector('.show-more-btn');
+      if(btn) btn.remove();
+    }
+  }
+
+  renderBatch();
+}
 </script>
 
+<!-- Google Maps -->
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initMap">
 </script>
