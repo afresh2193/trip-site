@@ -204,7 +204,8 @@ function initTripGallery(){
     const galleryHTML = rawUrls.map(item => {
       const parts = item.split('|');
       const url = parts[0] || "";
-      const caption = parts[1] || "";
+      // everything after the first | is treated as caption
+      const caption = parts.slice(1).join('|') || "";
       if(!url) return "";
       let figure = `<figure><img src="${url}" alt="${caption || trip.title}" loading="lazy">`;
       if(caption) figure += `<figcaption>${caption}</figcaption>`;
