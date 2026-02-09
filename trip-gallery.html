@@ -118,6 +118,7 @@ header h1 {
   <div class="trip-map" id="trip-map"></div>
 </div>
 
+<!-- WRITEUP (ABOVE BANNER) -->
 <div class="writeup" id="trip-writeup"></div>
 
 <div class="banner">
@@ -126,12 +127,8 @@ header h1 {
 
 <div class="photos-container" id="photos-container"></div>
 
-<!-- LOAD CONFIG FIRST -->
-<script src="config.js"></script>
-
 <script>
-/* ===== USE CONFIG ===== */
-const SCRIPT_URL = CONFIG.SCRIPT_URL;
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3dwxVyzavcZdRys0HpmEQmWTG-Mvs74alj2m_mM1MCG2xK-BUjTm-EEthF2tghAJ0/exec";
 
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
@@ -147,19 +144,15 @@ function initTripGallery(){
   .then(res => res.json())
   .then(data => {
 
-    const trip = data.cardItems.find(
-      t => makeSlug(t.title) === slug
-    );
+    const trip = data.cardItems.find(t => makeSlug(t.title) === slug);
 
     if(!trip){
-      document.getElementById("trip-title").innerText =
-        "Trip not found";
+      document.getElementById("trip-title").innerText = "Trip not found";
       return;
     }
 
     /* TITLE */
-    document.getElementById("trip-title").innerText =
-      trip.title;
+    document.getElementById("trip-title").innerText = trip.title;
 
     /* INFO */
     document.getElementById("trip-info").innerHTML = `
@@ -170,11 +163,9 @@ function initTripGallery(){
       <p><strong>Type:</strong> ${trip.type || ""}</p>
     `;
 
-    /* COVER PHOTO */
+    /* COVER PHOTO (IMAGEURL COLUMN) */
     document.getElementById("trip-cover").innerHTML =
-      `<img src="${trip.imageUrl || ""}"
-            alt="${trip.title}"
-            loading="lazy">`;
+      `<img src="${trip.imageUrl || ""}" alt="${trip.title}" loading="lazy">`;
 
     /* MAP */
     const map = new google.maps.Map(
@@ -192,19 +183,17 @@ function initTripGallery(){
       map: map
     });
 
-    /* WRITEUP */
+    /* WRITEUP — FIXED */
     const writeupText = trip.WriteUp || "";
     document.getElementById("trip-writeup").innerHTML =
       writeupText.replace(/\n/g,"<br>");
 
-    /* PHOTOS */
+    /* PHOTOS BELOW BANNER */
     const urls = data.images[slug] || [];
 
     document.getElementById("photos-container").innerHTML =
       urls.map(u =>
-        `<img src="${u}"
-              alt="${trip.title}"
-              loading="lazy">`
+        `<img src="${u}" alt="${trip.title}" loading="lazy">`
       ).join("");
 
   })
@@ -215,14 +204,13 @@ function initTripGallery(){
   });
 }
 
-/* ===== LOAD GOOGLE MAPS USING CONFIG ===== */
+/* Load Google Maps */
 function loadGoogleMaps(){
-  const script = document.createElement("script");
-  script.src =
-    `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_KEY}&callback=initTripGallery`;
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
+  const s = document.createElement("script");
+  s.src =
+    "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
+  s.defer = true;
+  document.head.appendChild(s);
 }
 
 loadGoogleMaps();
