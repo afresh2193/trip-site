@@ -10,10 +10,20 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 
 /* ===== HEADER ===== */
 .header {
-  background:#333; color:white; text-align:center; padding:20px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  background:#333; 
+  color:white; 
+  text-align:center; 
+  padding:12px 20px;
 }
-.header h1 { margin:0; font-size:32px; }
-.header p { margin:5px 0 0; font-size:16px; }
+.header h1 { margin:0; font-size:24px; }
+.header p { margin:3px 0 0; font-size:14px; }
+
+/* ===== SPACING FOR FIXED HEADER ===== */
+body { padding-top:60px; }
 
 /* ===== FILTER ===== */
 #filters {
@@ -77,13 +87,12 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
   background:#333;
   color:white;
   padding:20px;
-  min-width:200px;
+  min-width:180px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   gap:6px;
 }
-
 .trip-info p { margin:2px 0; font-size:14px; }
 
 .trip-photo {
@@ -95,6 +104,21 @@ body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
 
 /* ===== SPACER ===== */
 .spacer { height:30px; }
+
+.show-more-btn {
+  margin: 20px auto;
+  display: block;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+.show-more-btn:hover {
+  background: #555;
+}
 </style>
 </head>
 <body>
@@ -222,12 +246,15 @@ function showDetails(data){
 }
 
 /* ===== TRIP CARDS BELOW MAP ===== */
+const MAX_CARDS = 50;
+let currentCardCount = 0;
+
 function loadTripCards(trips){
   const container = document.getElementById('cards-container');
   container.innerHTML='';
   const sorted = trips.sort((a,b)=> new Date(b.date)-new Date(a.date));
 
-  sorted.forEach(trip=>{
+  function createCard(trip){
     const slug = trip.title.toLowerCase().replace(/\s+/g,'-');
     const photo = trip.imageUrl || '';
 
@@ -246,8 +273,31 @@ function loadTripCards(trips){
       </div>
       <div class="trip-photo" style="background-image:url('${photo}')"></div>
     `;
-    container.appendChild(card);
-  });
+    return card;
+  }
+
+  function renderBatch(){
+    const batch = sorted.slice(currentCardCount, currentCardCount + MAX_CARDS);
+    batch.forEach(trip=> container.appendChild(createCard(trip)));
+    currentCardCount += batch.length;
+
+    // Add "Show More" button if needed
+    if(currentCardCount < sorted.length){
+      let btn = container.querySelector('.show-more-btn');
+      if(!btn){
+        btn = document.createElement('button');
+        btn.className='show-more-btn';
+        btn.innerText='Show More';
+        btn.onclick=renderBatch;
+        container.appendChild(btn);
+      }
+    } else {
+      const btn = container.querySelector('.show-more-btn');
+      if(btn) btn.remove();
+    }
+  }
+
+  renderBatch();
 }
 </script>
 
