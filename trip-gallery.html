@@ -37,29 +37,31 @@ header h1 {
 .trip-cover,
 .trip-map {
   background: #fff;
-  padding: 15px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 6px;
 }
 
-.trip-info { flex: 1 1 200px; min-width: 200px; }
-.trip-info p { margin: 5px 0; }
-
-/* Remove padding around the top middle photo */
+/* Remove all padding and margin around the top middle photo */
 .trip-cover {
   flex: 1 1 400px;
   text-align: center;
   padding: 0;
+  margin: 0;
 }
 .trip-cover img {
   width: 100%;
   max-height: 300px;
   object-fit: cover;
   display: block;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
+  border-radius: 0; /* optional: remove rounding if desired */
 }
 
-.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; }
+.trip-info { flex: 1 1 200px; min-width: 200px; padding: 15px; }
+.trip-info p { margin: 5px 0; }
+
+.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; padding: 15px; }
 
 /* WRITEUP */
 .writeup {
@@ -73,17 +75,6 @@ header h1 {
   font-size: 16px;
   color: #333;
 }
-
-/* Banner 
-.banner {
-  margin: 20px auto;
-  max-width: 1200px;
-  padding: 15px;
-  text-align: center;
-  background-color: #444;
-  color: #fff;
-  font-size: 18px;
-} */
 
 /* Photos */
 .photos-container {
@@ -123,12 +114,8 @@ header h1 {
   <div class="trip-map" id="trip-map"></div>
 </div>
 
-<!-- WRITEUP (ABOVE BANNER) -->
+<!-- WRITEUP -->
 <div class="writeup" id="trip-writeup"></div>
-
-<div class="banner">
-  Your small banner text goes here
-</div>
 
 <div class="photos-container" id="photos-container"></div>
 
@@ -168,7 +155,7 @@ function initTripGallery(){
       <p><strong>Type:</strong> ${trip.type || ""}</p>
     `;
 
-    /* COVER PHOTO (IMAGEURL COLUMN) */
+    /* COVER PHOTO */
     document.getElementById("trip-cover").innerHTML =
       `<img src="${trip.imageUrl || ""}" alt="${trip.title}" loading="lazy">`;
 
@@ -188,14 +175,13 @@ function initTripGallery(){
       map: map
     });
 
-    /* WRITEUP — FIXED */
+    /* WRITEUP */
     const writeupText = trip.WriteUp || "";
     document.getElementById("trip-writeup").innerHTML =
       writeupText.replace(/\n/g,"<br>");
 
-    /* PHOTOS BELOW BANNER */
+    /* PHOTOS BELOW */
     const urls = data.images[slug] || [];
-
     document.getElementById("photos-container").innerHTML =
       urls.map(u =>
         `<img src="${u}" alt="${trip.title}" loading="lazy">`
