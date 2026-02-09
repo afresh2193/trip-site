@@ -3,298 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Travel Map</title>
+<title>Trip Gallery</title>
 
 <style>
-body { margin:0; font-family: Arial,sans-serif; background:#f2f2f2; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
 
-/* HEADER */
-.header {
-  position: fixed;
-  top: 0;
+header {
+  text-align: center;
+  padding: 30px 20px 20px 20px;
+}
+header h1 {
+  margin: 0;
+  font-size: 36px;
+  color: #333;
+}
+
+/* Top three components */
+.trip-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 1200px;
+  gap: 20px;
+}
+
+.trip-info,
+.trip-cover,
+.trip-map {
+  background: #fff;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 6px;
+}
+
+.trip-info { flex: 1 1 200px; min-width: 200px; }
+.trip-info p { margin: 5px 0; }
+
+.trip-cover { flex: 1 1 400px; text-align: center; }
+.trip-cover img {
   width: 100%;
-  z-index: 999;
-  background:#333;
-  color:white;
-  text-align:center;
-  padding:12px 20px;
-}
-.header h1 { margin:0; font-size:24px; }
-.header p { margin:3px 0 0; font-size:14px; }
-
-body { padding-top:60px; }
-
-/* FILTER */
-#filters {
-  position:absolute; z-index:999;
-  background:white; padding:10px; margin:10px;
-  border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.3);
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
 }
 
-/* MAP + SIDEBAR */
-#container { display:flex; height:80vh; min-height:500px; }
-#map-container { flex:3; padding:10px; }
-#map { width:100%; height:100%; }
+.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; }
 
-#details-panel {
-  flex:1;
-  background:#f9f9f9;
-  padding:15px;
-  overflow-y:auto;
-  border-left:1px solid #ccc;
-}
-#details-panel img { width:100%; margin-bottom:15px; }
-
-.go-to-page-btn {
-  background:#28a745; color:white; padding:12px;
-  border:none; width:100%; font-size:18px;
-  cursor:pointer; margin-top:15px;
-}
-.go-to-page-btn:hover { background:#218838; }
-
-/* CARDS */
-.cards-container {
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  max-width:1200px;
-  margin:40px auto;
-  padding:0 10px;
+/* WRITEUP */
+.writeup {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 24px 28px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  line-height: 1.7;
+  font-size: 16px;
+  color: #333;
 }
 
-.trip-card {
-  display:flex;
-  background:#fff;
-  cursor:pointer;
-  border-radius:8px;
-  overflow:hidden;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+/* Banner */
+.banner {
+  margin: 20px auto;
+  max-width: 1200px;
+  padding: 15px;
+  text-align: center;
+  background-color: #444;
+  color: #fff;
+  font-size: 18px;
 }
 
-.trip-info {
-  flex:.8;
-  background:#333;
-  color:white;
-  padding:20px;
+/* Photos */
+.photos-container {
+  margin: 20px auto;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-.trip-photo {
-  flex:3.2;
-  background-size:cover;
-  background-position:center;
-  min-height:400px;
+.photos-container img {
+  width: 90%;
+  max-width: 800px;
+  object-fit: cover;
+  display: block;
 }
 
-.spacer { height:30px; }
-
-.show-more-btn {
-  margin:20px auto;
-  padding:12px 24px;
-  background:#333;
-  color:white;
-  border:none;
-  border-radius:6px;
+/* Mobile */
+@media (max-width: 900px) {
+  .trip-container {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <h1>My Travel Map</h1>
-  <p>Click a location to view the trip gallery</p>
+<header>
+  <h1 id="trip-title">Loading...</h1>
+</header>
+
+<div class="trip-container">
+  <div class="trip-info" id="trip-info"></div>
+  <div class="trip-cover" id="trip-cover"></div>
+  <div class="trip-map" id="trip-map"></div>
 </div>
 
-<!-- FILTER -->
-<div id="filters">
-  <label>
-    Type:
-    <select id="typeFilter">
-      <option value="All">All</option>
-      <option value="Hike">Hike</option>
-      <option value="Backpack">Backpack</option>
-      <option value="Kayak">Kayak</option>
-      <option value="Other">Other</option>
-    </select>
-  </label>
+<!-- WRITEUP (ABOVE BANNER) -->
+<div class="writeup" id="trip-writeup"></div>
+
+<div class="banner">
+  Your small banner text goes here
 </div>
 
-<!-- MAP + SIDEBAR -->
-<div id="container">
-  <div id="map-container">
-    <div id="map"></div>
-  </div>
-  <div id="details-panel">
-    <div id="details-content">Loading...</div>
-  </div>
-</div>
-
-<div class="spacer"></div>
-
-<!-- CARDS -->
-<div class="cards-container" id="cards-container">
-  Loading trips...
-</div>
-
-<!-- LOAD CONFIG FIRST -->
-<script src="config.js"></script>
+<div class="photos-container" id="photos-container"></div>
 
 <script>
-/* ===== USE CONFIG ===== */
-const SCRIPT_URL = CONFIG.SCRIPT_URL;
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3dwxVyzavcZdRys0HpmEQmWTG-Mvs74alj2m_mM1MCG2xK-BUjTm-EEthF2tghAJ0/exec";
 
-/* ===== LOAD GOOGLE MAPS USING CONFIG KEY ===== */
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("slug");
+
+/* Convert title → slug */
+function makeSlug(text){
+  return text.toLowerCase().replace(/\s+/g,"-");
+}
+
+function initTripGallery(){
+
+  fetch(SCRIPT_URL)
+  .then(res => res.json())
+  .then(data => {
+
+    const trip = data.cardItems.find(t => makeSlug(t.title) === slug);
+
+    if(!trip){
+      document.getElementById("trip-title").innerText = "Trip not found";
+      return;
+    }
+
+    /* TITLE */
+    document.getElementById("trip-title").innerText = trip.title;
+
+    /* INFO */
+    document.getElementById("trip-info").innerHTML = `
+      <p><strong>Date:</strong> ${trip.date || ""}</p>
+      <p><strong>Area:</strong> ${trip.area || ""}</p>
+      <p><strong>Miles:</strong> ${trip.miles || ""}</p>
+      <p><strong>Elevation Gain:</strong> ${trip.elevationGain || ""}</p>
+      <p><strong>Type:</strong> ${trip.type || ""}</p>
+    `;
+
+    /* COVER PHOTO (IMAGEURL COLUMN) */
+    document.getElementById("trip-cover").innerHTML =
+      `<img src="${trip.imageUrl || ""}" alt="${trip.title}" loading="lazy">`;
+
+    /* MAP */
+    const map = new google.maps.Map(
+      document.getElementById("trip-map"),
+      {
+        center: trip.position,
+        zoom: 10,
+        mapTypeId: "terrain",
+        disableDefaultUI: true
+      }
+    );
+
+    new google.maps.Marker({
+      position: trip.position,
+      map: map
+    });
+
+    /* WRITEUP — FIXED */
+    const writeupText = trip.WriteUp || "";
+    document.getElementById("trip-writeup").innerHTML =
+      writeupText.replace(/\n/g,"<br>");
+
+    /* PHOTOS BELOW BANNER */
+    const urls = data.images[slug] || [];
+
+    document.getElementById("photos-container").innerHTML =
+      urls.map(u =>
+        `<img src="${u}" alt="${trip.title}" loading="lazy">`
+      ).join("");
+
+  })
+  .catch(err=>{
+    console.error(err);
+    document.getElementById("trip-title").innerText =
+      "Failed to load trip data";
+  });
+}
+
+/* Load Google Maps */
 function loadGoogleMaps(){
-  const script = document.createElement("script");
-  script.src =
-    `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_KEY}&callback=initMap`;
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
+  const s = document.createElement("script");
+  s.src =
+    "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
+  s.defer = true;
+  document.head.appendChild(s);
 }
 
 loadGoogleMaps();
-
-/* ===== MAP ===== */
-let map;
-let allMarkersData = [];
-let mapMarkers = [];
-
-function initMap(){
-  map = new google.maps.Map(document.getElementById("map"),{
-    center:{lat:36.805098,lng:-109.822512},
-    zoom:6,
-    mapTypeId:"terrain",
-    gestureHandling:"greedy",
-    disableDefaultUI:true
-  });
-  loadTrips();
-}
-
-function loadTrips(){
-  fetch(SCRIPT_URL)
-    .then(res=>res.json())
-    .then(data=>{
-      allMarkersData = data.cardItems;
-      updateMarkers();
-
-      const sorted=[...allMarkersData]
-        .sort((a,b)=> new Date(b.date)-new Date(a.date));
-
-      if(sorted.length) showDetails(sorted[0]);
-
-      loadTripCards(data.cardItems);
-    });
-}
-
-function getMarkerIcon(type){
-  switch(type?.toLowerCase()){
-    case "hike": return "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-    case "backpack": return "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
-    case "kayak": return "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
-    default: return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-  }
-}
-
-function updateMarkers(){
-  mapMarkers.forEach(m=>m.setMap(null));
-  mapMarkers=[];
-
-  const selected=document.getElementById("typeFilter").value;
-
-  allMarkersData.forEach(d=>{
-    if(selected!=="All" && d.type!==selected) return;
-    if(!d.position) return;
-
-    const marker=new google.maps.Marker({
-      position:d.position,
-      map,
-      icon:getMarkerIcon(d.type)
-    });
-
-    marker.addListener("click",()=>showDetails(d));
-    mapMarkers.push(marker);
-  });
-}
-
-document.getElementById("typeFilter")
-  .addEventListener("change",updateMarkers);
-
-function showDetails(data){
-  const urls=data.imageUrl?.split(",").map(u=>u.trim())||[];
-  const imagesHtml=urls.map(u=>`<img src="${u}">`).join("");
-
-  document.getElementById("details-content").innerHTML=`
-    <h2>${data.title}</h2>
-    ${imagesHtml}
-    <p><strong>Area:</strong> ${data.area}</p>
-    <p><strong>Date:</strong> ${data.date}</p>
-    <p><strong>Miles:</strong> ${data.miles}</p>
-    <p><strong>Elevation Gain:</strong> ${data.elevationGain}</p>
-    <button class="go-to-page-btn">Go to Page</button>
-  `;
-
-  document.querySelector(".go-to-page-btn").onclick=()=>{
-    const slug=data.title.toLowerCase().replace(/\s+/g,'-');
-    window.location.href=`trip-gallery.html?slug=${slug}`;
-  };
-}
-
-/* ===== CARDS ===== */
-const MAX_CARDS=50;
-let currentCardCount=0;
-
-function loadTripCards(trips){
-  const container=document.getElementById('cards-container');
-  container.innerHTML='';
-  const sorted=trips.sort((a,b)=> new Date(b.date)-new Date(a.date));
-
-  function createCard(trip){
-    const slug=trip.title.toLowerCase().replace(/\s+/g,'-');
-    const photo=trip.imageUrl||'';
-
-    const card=document.createElement('div');
-    card.className='trip-card';
-    card.onclick=()=>window.location.href=`trip-gallery.html?slug=${slug}`;
-
-    card.innerHTML=`
-      <div class="trip-info">
-        <p><strong>Hike:</strong> ${trip.title}</p>
-        <p><strong>Area:</strong> ${trip.area||''}</p>
-        <p><strong>Date:</strong> ${trip.date}</p>
-        <p><strong>Miles:</strong> ${trip.miles||0}</p>
-        <p><strong>Elevation Gain:</strong> ${trip.elevationGain||0}</p>
-        <p><strong>Type:</strong> ${trip.type||''}</p>
-      </div>
-      <div class="trip-photo"
-        style="background-image:url('${photo}')"></div>
-    `;
-    return card;
-  }
-
-  function renderBatch(){
-    const batch=sorted.slice(
-      currentCardCount,
-      currentCardCount+MAX_CARDS
-    );
-
-    batch.forEach(t=>container.appendChild(createCard(t)));
-    currentCardCount+=batch.length;
-
-    if(currentCardCount<sorted.length){
-      let btn=container.querySelector('.show-more-btn');
-      if(!btn){
-        btn=document.createElement('button');
-        btn.className='show-more-btn';
-        btn.innerText='Show More';
-        btn.onclick=renderBatch;
-        container.appendChild(btn);
-      }
-    }
-  }
-
-  renderBatch();
-}
 </script>
 
 </body>
