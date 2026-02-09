@@ -27,7 +27,6 @@ header h1 {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding: 20px;
   margin: 0 auto;
   max-width: 1200px;
   gap: 20px;
@@ -39,29 +38,40 @@ header h1 {
   background: #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 6px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Remove all padding and margin around the top middle photo */
+/* Remove padding and force full height for cover */
 .trip-cover {
   flex: 1 1 400px;
-  text-align: center;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
+
 .trip-cover img {
   width: 100%;
-  max-height: 300px;
+  height: 100%;        /* fill container */
   object-fit: cover;
   display: block;
   margin: 0;
   padding: 0;
-  border-radius: 0; /* optional: remove rounding if desired */
+  border-radius: 6px 6px 6px 6px; /* optional, match siblings */
 }
 
-.trip-info { flex: 1 1 200px; min-width: 200px; padding: 15px; }
+.trip-info { 
+  flex: 1 1 200px; 
+  min-width: 200px; 
+  padding: 15px; 
+}
 .trip-info p { margin: 5px 0; }
 
-.trip-map { flex: 1 1 300px; min-width: 300px; height: 300px; padding: 15px; }
+.trip-map { 
+  flex: 1 1 300px; 
+  min-width: 300px; 
+  height: 300px; 
+  padding: 15px; 
+}
 
 /* WRITEUP */
 .writeup {
@@ -98,6 +108,9 @@ header h1 {
   .trip-container {
     flex-direction: column;
   }
+  .trip-cover img {
+    height: auto; /* keep normal ratio on small screens */
+  }
 }
 </style>
 </head>
@@ -125,7 +138,6 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3dwxVyzavcZdRys0Hp
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
-/* Convert title → slug */
 function makeSlug(text){
   return text.toLowerCase().replace(/\s+/g,"-");
 }
@@ -143,10 +155,8 @@ function initTripGallery(){
       return;
     }
 
-    /* TITLE */
     document.getElementById("trip-title").innerText = trip.title;
 
-    /* INFO */
     document.getElementById("trip-info").innerHTML = `
       <p><strong>Date:</strong> ${trip.date || ""}</p>
       <p><strong>Area:</strong> ${trip.area || ""}</p>
@@ -155,11 +165,9 @@ function initTripGallery(){
       <p><strong>Type:</strong> ${trip.type || ""}</p>
     `;
 
-    /* COVER PHOTO */
     document.getElementById("trip-cover").innerHTML =
       `<img src="${trip.imageUrl || ""}" alt="${trip.title}" loading="lazy">`;
 
-    /* MAP */
     const map = new google.maps.Map(
       document.getElementById("trip-map"),
       {
@@ -175,12 +183,10 @@ function initTripGallery(){
       map: map
     });
 
-    /* WRITEUP */
     const writeupText = trip.WriteUp || "";
     document.getElementById("trip-writeup").innerHTML =
       writeupText.replace(/\n/g,"<br>");
 
-    /* PHOTOS BELOW */
     const urls = data.images[slug] || [];
     document.getElementById("photos-container").innerHTML =
       urls.map(u =>
@@ -195,7 +201,6 @@ function initTripGallery(){
   });
 }
 
-/* Load Google Maps */
 function loadGoogleMaps(){
   const s = document.createElement("script");
   s.src =
