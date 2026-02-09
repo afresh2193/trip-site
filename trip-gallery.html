@@ -1,8 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Gallery</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
+
+header {
+  text-align: center;
+  padding: 30px 20px 20px 20px;
+}
+header h1 {
+  margin: 0;
+  font-size: 36px;
+  color: #333;
+}
+
+/* Top three components */
+.trip-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1200px;
+  gap: 20px;
+}
+
+.trip-info,
+.trip-cover,
+.trip-map {
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-cover {
+  flex: 1 1 400px;
+  margin: 0;
+  padding: 0;
+}
+.trip-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.trip-info { 
+  flex: 1 1 200px; 
+  min-width: 200px; 
+  padding: 15px; 
+}
+.trip-info p { margin: 5px 0; }
+
+.trip-map { 
+  flex: 1 1 300px; 
+  min-width: 300px; 
+  height: 300px; 
+  padding: 15px; 
+}
+
+/* WRITEUP */
+.writeup {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 24px 28px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  line-height: 1.7;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Photos */
+.photos-container {
+  margin: 20px auto;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.photos-container figure {
+  margin: 0;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.photos-container img {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photos-container figcaption {
+  text-align: center;
+  padding: 5px 0;
+  font-style: italic;
+  color: #555;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .trip-container {
+    flex-direction: column;
+  }
+  .trip-cover img {
+    height: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 id="trip-title">Loading...</h1>
+</header>
+
+<div class="trip-container">
+  <div class="trip-info" id="trip-info"></div>
+  <div class="trip-cover" id="trip-cover"></div>
+  <div class="trip-map" id="trip-map"></div>
+</div>
+
+<div class="writeup" id="trip-writeup"></div>
+
 <div class="photos-container" id="photos-container"></div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3dwxVyzavcZdRys0HpmEQmWTG-Mvs74alj2m_mM1MCG2xK-BUjTm-EEthF2tghAJ0/exec";
-
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
@@ -36,6 +176,7 @@ function initTripGallery(){
     document.getElementById("trip-cover").innerHTML =
       `<img src="${trip.imageUrl || ""}" alt="${trip.title}" loading="lazy">`;
 
+    // Map
     const map = new google.maps.Map(
       document.getElementById("trip-map"),
       {
@@ -51,18 +192,20 @@ function initTripGallery(){
       map: map
     });
 
+    // Writeup
     const writeupText = trip.WriteUp || "";
     document.getElementById("trip-writeup").innerHTML =
       writeupText.replace(/\n/g,"<br>");
 
-    // ===== Updated photos logic =====
+    // Photos
     const rawUrls = data.images[slug] || [];
     const galleryHTML = rawUrls.map(item => {
-      item = item.trim();
       if(!item) return "";
-
-      // Split into URL and caption
-      const [url, caption] = item.split('|');
+      item = item.trim();
+      const parts = item.split('|');
+      const url = parts[0] || "";
+      const caption = parts[1] || "";
+      if(!url) return "";
       let figure = `<figure><img src="${url}" alt="${caption || trip.title}" loading="lazy">`;
       if(caption) figure += `<figcaption>${caption}</figcaption>`;
       figure += `</figure>`;
@@ -81,11 +224,14 @@ function initTripGallery(){
 
 function loadGoogleMaps(){
   const s = document.createElement("script");
-  s.src =
-    "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA&callback=initTripGallery";
+  s.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCMCxxUBxZ-a2UyHwu5PbKwYBxvAo0bAAA";
   s.defer = true;
+  s.onload = initTripGallery;
   document.head.appendChild(s);
 }
 
 loadGoogleMaps();
 </script>
+
+</body>
+</html>
